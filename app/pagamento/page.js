@@ -1,13 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useCarrinho } from "@/context/CarrinhoContext";
 
 export default function Pagamento() {
     const { carrinho, limparCarrinho } = useCarrinho();
-    const router = useRouter();
     const [metodoPagamento, setMetodoPagamento] = useState("");
-    const [dadosCartao, setDadosCartao] = useState({ numero: "", validade: "", cvv: "" });
     const [mensagem, setMensagem] = useState("");
     const [qrCodePix, setQrCodePix] = useState(false);
     const [endereco, setEndereco] = useState(null);
@@ -21,36 +18,43 @@ export default function Pagamento() {
 
     const total = carrinho.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
 
-    const finalizarPagamento = () => {
+    const finalizarPagamento = async () => {
         if (!metodoPagamento) {
             setMensagem("⚠️ Selecione um método de pagamento!");
             return;
         }
 
-        if (metodoPagamento === "cartao") {
-            if (!dadosCartao.numero || !dadosCartao.validade || !dadosCartao.cvv) {
-                setMensagem("⚠️ Preencha todos os dados do cartão!");
-                return;
-            }
-            if (dadosCartao.numero.length < 16 || isNaN(dadosCartao.numero)) {
-                setMensagem("⚠️ Número do cartão inválido!");
-                return;
-            }
-            if (dadosCartao.validade.length < 5 || !/\d{2}\/\d{2}/.test(dadosCartao.validade)) {
-                setMensagem("⚠️ Validade inválida! Use o formato MM/AA.");
-                return;
-            }
-            if (dadosCartao.cvv.length < 3 || isNaN(dadosCartao.cvv)) {
-                setMensagem("⚠️ CVV inválido!");
-                return;
-            }
-        }
+        setMensagem("✅ Redirecionando para o pagamento...");
 
-        setMensagem("✅ Pagamento realizado com sucesso!");
-        setTimeout(() => {
-            limparCarrinho();
-            router.push("/confirmacao"); // Redireciona para a página de confirmação
-        }, 2000);
+        const produtosCarrinho = carrinho.map(item => ({
+            nome: item.nome,
+            quantidade: item.quantidade,
+            preco: item.preco,
+            tamanho: item.tamanho,
+        }));
+
+        try {
+            const res = await fetch("/api/create-checkout-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    items: produtosCarrinho,
+                    total,
+                    metodoPagamento,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (data.url) {
+                window.location.href = data.url;
+            } else {
+                setMensagem("⚠️ Algo deu errado, tente novamente.");
+            }
+        } catch (error) {
+            console.error("❌ Erro ao processar pagamento:", error);
+            setMensagem("⚠️ Não foi possível processar o pagamento.");
+        }
     };
 
     return (
@@ -94,20 +98,20 @@ export default function Pagamento() {
                 </div>
             )}
 
-            {metodoPagamento === "cartao" && (
-                <div>
-                    <h3>Dados do Cartão</h3>
-                    <input type="text" placeholder="Número do Cartão (16 dígitos)" maxLength="16" onChange={(e) => setDadosCartao({ ...dadosCartao, numero: e.target.value })} />
-                    <input type="text" placeholder="Validade (MM/AA)" maxLength="5" onChange={(e) => setDadosCartao({ ...dadosCartao, validade: e.target.value })} />
-                    <input type="text" placeholder="CVV (3 dígitos)" maxLength="3" onChange={(e) => setDadosCartao({ ...dadosCartao, cvv: e.target.value })} />
-                </div>
-            )}
-
             {mensagem && <p>{mensagem}</p>}
 
-            <button 
-                onClick={finalizarPagamento} 
-                style={{ padding: "10px 20px", backgroundColor: "#28a745", color: "white", border: "none", cursor: "pointer", fontSize: "16px", marginTop: "10px" }}>
+            <button
+                onClick={finalizarPagamento}
+                style={{
+                    padding: "10px 20px",
+                    backgroundColor: "#28a745",
+                    color: "white",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "16px",
+                    marginTop: "10px",
+                }}
+            >
                 Finalizar Pagamento
             </button>
         </div>
