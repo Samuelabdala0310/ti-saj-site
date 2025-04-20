@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 const CarrinhoContext = createContext();
 
 export function CarrinhoProvider({ children }) {
-    const [carrinho, setCarrinho] = useState([]); // Agora começa como array vazio
+    const [carrinho, setCarrinho] = useState([]); // Começa vazio
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -46,10 +46,13 @@ export function CarrinhoProvider({ children }) {
     }
 
     function removerDoCarrinho(nomeProduto, tamanho) {
+        console.log("Tentando remover:", nomeProduto, tamanho);
         setCarrinho((prevCarrinho) => {
+            console.log("Carrinho antes:", prevCarrinho);
             const novoCarrinho = prevCarrinho.filter(
                 (item) => !(item.nome === nomeProduto && item.tamanho === tamanho)
             );
+            console.log("Carrinho depois:", novoCarrinho);
             localStorage.setItem("carrinho", JSON.stringify(novoCarrinho));
             return novoCarrinho;
         });

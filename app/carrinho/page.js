@@ -22,17 +22,20 @@ export default function Carrinho() {
             ) : (
                 <>
                     <ul>
-                        {carrinho.map((item, index) => (
-                            <li key={index} className="border-b py-4 flex justify-between items-center">
-                                <span>{item.nome} - {item.tamanho} - {item.quantidade}x</span>
-                                <button 
-                                    onClick={() => removerDoCarrinho(item.nome, item.tamanho)}
-                                    className="bg-red-500 text-white px-3 py-2 rounded-lg"
-                                >
-                                    Remover
-                                </button>
-                            </li>
-                        ))}
+                       {carrinho.map((item, index) => {
+                            console.log("Item no carrinho:", item); // <- Adiciona isso aqui
+                            return (
+                                <li key={index} className="border-b py-4 flex justify-between items-center">
+                                    <span>{item.nome} - {item.tamanho} - {item.quantidade}x</span>
+                                    <button 
+                                        onClick={() => removerDoCarrinho(item.nome, item.tamanho)}
+                                        className="bg-red-500 text-white px-3 py-2 rounded-lg"
+                                    >
+                                        Remover
+                                    </button>
+                                </li> 
+                           ); 
+                       })}
                     </ul>
                     <div className="mt-6 flex justify-end">
                         <Link href="/checkout">
