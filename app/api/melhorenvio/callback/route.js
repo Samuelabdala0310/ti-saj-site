@@ -1,35 +1,51 @@
-// app/api/melhorenvio/callback/route.js
-
-import axios from 'axios';
-import { NextResponse } from 'next/server';
-
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const code = searchParams.get('code');
 
   if (!code) {
-    return NextResponse.json({ error: 'Código de autorização não encontrado.' }, { status: 400 });
+    return new Response(JSON.stringify({ error: 'Código de autorização não encontrado.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   try {
-    const response = await axios.post('https://api.melhorenvio.com.br/oauth/token', {
-      grant_type: 'authorization_code',
-      client_id: process.env.NEXT_PUBLIC_MELHOR_ENVIO_CLIENT_ID,
-      client_secret: process.env.MELHOR_ENVIO_SECRET,
-      redirect_uri: process.env.NEXT_PUBLIC_MELHOR_ENVIO_REDIRECT_URI,
-      code,
-    }, {
+    const response = await fetch(`${process.env.MELHORENVIO_API}/oauth/token`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Accept: 'application/json',
       },
+      body: JSON.stringify({
+        grant_type: 'authorization_code',
+        client_id: process.env.NEXT_PUBLIC_MELHOR_ENVIO_CLIENT_ID,
+        client_secret: process.env.MELHOR_ENVIO_CLIENT_SECRET,
+        redirect_uri: process.env.MELHOR_ENVIO_REDIRECT_URI,
+        code,
+      }),
     });
 
-    console.log('Access Token:', response.data.access_token);
+    const data = await response.json();
 
-    return NextResponse.json({ message: 'Autenticado com sucesso!', tokens: response.data });
+    if (!response.ok) {
+      console.error('Erro ao obter token:', data);
+      return new Response(JSON.stringify({ error: 'Erro ao obter token', details: data }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    console.log('Token recebido:', data);
+
+    return new Response(JSON.stringify({ success: true, token: data }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+
   } catch (error) {
-    console.error('Erro ao obter token:', error?.response?.data || error.message);
-    return NextResponse.json({ error: 'Falha ao trocar código por token.' }, { status: 500 });
+    console.error('Erro inesperado:', error);
+    return new Response(JSON.stringify({ error: 'Falha ao trocar código por token.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
