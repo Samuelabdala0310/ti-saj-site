@@ -10,18 +10,19 @@ export async function GET(req) {
   }
 
   try {
+    const formData = new URLSearchParams();
+    formData.append('grant_type', 'authorization_code');
+    formData.append('client_id', process.env.NEXT_PUBLIC_MELHOR_ENVIO_CLIENT_ID);
+    formData.append('client_secret', process.env.MELHOR_ENVIO_CLIENT_SECRET);
+    formData.append('redirect_uri', process.env.MELHOR_ENVIO_REDIRECT_URI);
+    formData.append('code', code);
+
     const response = await fetch(`${process.env.MELHORENVIO_API}/oauth/token`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify({
-        grant_type: 'authorization_code',
-        client_id: process.env.NEXT_PUBLIC_MELHOR_ENVIO_CLIENT_ID,
-        client_secret: process.env.MELHOR_ENVIO_CLIENT_SECRET,
-        redirect_uri: process.env.MELHOR_ENVIO_REDIRECT_URI,
-        code,
-      }),
+      body: formData.toString(),
     });
 
     const data = await response.json();
