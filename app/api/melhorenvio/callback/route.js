@@ -9,7 +9,7 @@ export async function GET(req) {
     });
   }
 
-  const queryParams = new URLSearchParams({
+  const params = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: process.env.NEXT_PUBLIC_MELHOR_ENVIO_CLIENT_ID,
     client_secret: process.env.MELHOR_ENVIO_CLIENT_SECRET,
@@ -17,36 +17,61 @@ export async function GET(req) {
     code,
   });
 
-  const url = `${process.env.MELHORENVIO_API}/oauth/token?${queryParams.toString()}`;
+  const url = `${process.env.MELHORENVIO_API}/oauth/token`;
+  console.log('Enviando requisição para:', url);
 
   try {
     const response = await fetch(url, {
-      method: 'GET', // importante: GET
+      method: 'POST',
       headers: {
-        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
+      body: params.toString(),
     });
+
+    const contentType = response.headers.get('content-type') || '';
+
+    if (!contentType.includes('application/json')) {
+      const raw = await response.text();
+      console.error('Resposta inesperada do servidor (não é JSON):', raw);
+      return new Response(JSON.stringify({
+        error: 'Resposta inesperada do servidor (não é JSON)',
+        raw,
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     const data = await response.json();
 
     if (!response.ok) {
       console.error('Erro ao obter token:', data);
-      return new Response(JSON.stringify({ error: 'Erro ao obter token', details: data }), {
+      return new Response(JSON.stringify({
+        error: 'Erro ao obter token',
+        details: data,
+      }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('Token recebido:', data);
+    console.log('Token recebido com sucesso:', data);
 
-    return new Response(JSON.stringify({ success: true, token: data }), {
+    return new Response(JSON.stringify({
+      success: true,
+      token: data,
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Erro inesperado:', error);
-    return new Response(JSON.stringify({ error: 'Falha ao trocar código por token.' }), {
+    return new Response(JSON.stringify({
+      error: 'Falha ao trocar código por token.',
+      details: error.message,
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
