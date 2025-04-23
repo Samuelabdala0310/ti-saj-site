@@ -9,7 +9,7 @@ export async function GET(req) {
     });
   }
 
-  const query = new URLSearchParams({
+  const queryParams = new URLSearchParams({
     grant_type: 'authorization_code',
     client_id: process.env.NEXT_PUBLIC_MELHOR_ENVIO_CLIENT_ID,
     client_secret: process.env.MELHOR_ENVIO_CLIENT_SECRET,
@@ -17,11 +17,13 @@ export async function GET(req) {
     code,
   });
 
+  const url = `${process.env.MELHORENVIO_API}/oauth/token?${queryParams.toString()}`;
+
   try {
-    const response = await fetch(`${process.env.MELHORENVIO_API}/oauth/token?${query.toString()}`, {
-      method: 'GET',
+    const response = await fetch(url, {
+      method: 'GET', // importante: GET
       headers: {
-        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
     });
 
