@@ -18,6 +18,8 @@ export async function GET(req) {
   });
 
   try {
+    console.log('🔍 Enviando parâmetros para Melhor Envio:', params.toString());
+
     const response = await fetch(`${process.env.MELHORENVIO_API}/oauth/token`, {
       method: 'POST',
       headers: {
@@ -26,17 +28,33 @@ export async function GET(req) {
       body: params.toString(),
     });
 
-    const data = await response.json();
+    console.log('📡 Status da resposta:', response.status);
+
+    const text = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (jsonError) {
+      console.error('❌ Resposta não é JSON. Conteúdo bruto:', text);
+      return new Response(JSON.stringify({
+        error: 'Resposta inesperada do servidor (não é JSON)',
+        raw: text
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
     if (!response.ok) {
-      console.error('Erro ao obter token:', data);
+      console.error('⚠️ Erro ao obter token:', data);
       return new Response(JSON.stringify({ error: 'Erro ao obter token', details: data }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    console.log('Token recebido:', data);
+    console.log('✅ Token recebido com sucesso:', data);
 
     return new Response(JSON.stringify({ success: true, token: data }), {
       status: 200,
@@ -44,7 +62,7 @@ export async function GET(req) {
     });
 
   } catch (error) {
-    console.error('Erro inesperado:', error);
+    console.error('💥 Erro inesperado na requisição:', error);
     return new Response(JSON.stringify({ error: 'Falha ao trocar código por token.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
