@@ -11,7 +11,7 @@ export async function GET(req) {
 
   const params = new URLSearchParams({
     grant_type: 'authorization_code',
-    client_id: process.env.NEXT_PUBLIC_MELHOR_ENVIO_CLIENT_ID,
+    client_id: process.env.MELHOR_ENVIO_CLIENT_ID,
     client_secret: process.env.MELHOR_ENVIO_CLIENT_SECRET,
     redirect_uri: process.env.MELHOR_ENVIO_REDIRECT_URI,
     code,
