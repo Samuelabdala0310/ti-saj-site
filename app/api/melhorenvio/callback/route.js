@@ -17,7 +17,10 @@ export async function GET(req) {
     code,
   });
 
-  const url = `${process.env.MELHORENVIO_API}/oauth/token`;
+  // Use a URL padrão, ou caia no valor padrão correto
+  const apiBase = process.env.MELHORENVIO_API || 'https://www.melhorenvio.com.br';
+  const url = `${apiBase}/oauth/token`;
+
   console.log('Enviando requisição para:', url);
 
   try {
