@@ -7,7 +7,7 @@ export async function POST(req) {
   console.log('Body recebido:', body);
 
   const accessToken = process.env.MELHOR_ENVIO_ACCESS_TOKEN;
-  console.log('Access Token carregado:', !!accessToken); // mostra se o token existe
+  console.log('Access Token carregado:', accessToken); // mostra se o token existe
 
   try {
     const response = await fetch('https://www.melhorenvio.com.br/api/v2/me/shipment/calculate', {
