@@ -6,14 +6,13 @@ export async function POST(req) {
   const body = await req.json();
   console.log('Body recebido:', body);
 
-  const accessToken = process.env.MELHOR_ENVIO_ACCESS_TOKEN;
+  const accessToken = process.env.SANDBOX_ACCESS_TOKEN;
   console.log('Access Token carregado:', accessToken);
 
-  // Função que identifica se o token é sandbox ou produção (pelo formato ou prefixo)
+  // Verifica se é um token sandbox
   const isSandboxToken = accessToken.startsWith('sandbox_');
 
-  // Definir a URL base dependendo se for sandbox ou produção
-  const baseUrl = isSandboxToken 
+  const baseUrl = isSandboxToken
     ? 'https://sandbox.melhorenvio.com.br/api/v2'
     : 'https://www.melhorenvio.com.br/api/v2';
 
@@ -23,11 +22,11 @@ export async function POST(req) {
     const response = await fetch(`${baseUrl}/me/shipment/calculate`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
-        'Accept': 'application/json',
+        Accept: 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify([body]), // Enviar como array
     });
 
     console.log('Resposta recebida da Melhor Envio, status:', response.status);
