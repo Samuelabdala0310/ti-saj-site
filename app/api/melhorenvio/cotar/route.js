@@ -1,22 +1,29 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
-  console.log('Recebendo requisição de cotação...');
-
-  const body = await req.json();
-  console.log('Body recebido:', body);
+  console.log('🟡 Recebendo requisição de cotação...');
 
   const accessToken = process.env.SANDBOX_ACCESS_TOKEN;
-  console.log('Access Token carregado:', accessToken);
+  if (!accessToken) {
+    console.error('❌ Token de acesso não encontrado no .env');
+    return NextResponse.json({ error: 'Access token não encontrado' }, { status: 500 });
+  }
 
-  // Verifica se é um token sandbox
   const isSandboxToken = accessToken.startsWith('sandbox_');
-
   const baseUrl = isSandboxToken
     ? 'https://sandbox.melhorenvio.com.br/api/v2'
     : 'https://www.melhorenvio.com.br/api/v2';
 
-  console.log('Base URL escolhida:', baseUrl);
+  console.log('🔵 Base URL escolhida:', baseUrl);
+
+  let body;
+  try {
+    body = await req.json();
+    console.log('📦 Body recebido:', JSON.stringify(body, null, 2));
+  } catch (err) {
+    console.error('❌ Erro ao ler o body da requisição:', err);
+    return NextResponse.json({ error: 'Body inválido' }, { status: 400 });
+  }
 
   try {
     const response = await fetch(`${baseUrl}/me/shipment/calculate`, {
@@ -26,22 +33,28 @@ export async function POST(req) {
         'Content-Type': 'application/json',
         Accept: 'application/json',
       },
-      body: JSON.stringify([body]), // Enviar como array
+      body: JSON.stringify([body]), // A API espera um array
     });
 
-    console.log('Resposta recebida da Melhor Envio, status:', response.status);
+    console.log('📨 Status da resposta da Melhor Envio:', response.status);
+
+    const responseText = await response.text();
 
     if (!response.ok) {
-      const errorData = await response.text();
-      console.error('Erro da API Melhor Envio:', errorData);
-      return NextResponse.json({ error: errorData }, { status: response.status });
+      console.error('❌ Erro da API Melhor Envio:', responseText);
+      return NextResponse.json({ error: responseText }, { status: response.status });
     }
 
-    const data = await response.json();
-    console.log('Dados de cotação recebidos:', data);
-    return NextResponse.json(data);
+    try {
+      const data = JSON.parse(responseText);
+      console.log('✅ Dados de cotação recebidos:', data);
+      return NextResponse.json(data);
+    } catch (jsonError) {
+      console.error('❌ Erro ao parsear JSON da resposta:', jsonError);
+      return NextResponse.json({ error: 'Resposta inválida da Melhor Envio' }, { status: 502 });
+    }
   } catch (error) {
-    console.error('Erro no servidor:', error);
+    console.error('❌ Erro no servidor:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
