@@ -1,19 +1,20 @@
-// app/melhorenvio/callback/page.js
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 export default function MelhorEnvioCallback() {
   const searchParams = useSearchParams();
-  const code = searchParams.get('code');
+  const [code, setCode] = useState(null);
 
   useEffect(() => {
-    if (code) {
-      // Aqui você pode enviar esse código para uma rota API que vai trocar por token
-      console.log("Código recebido:", code);
+    const receivedCode = searchParams.get('code');
+    if (receivedCode) {
+      console.log("Código recebido:", receivedCode);
+      setCode(receivedCode);
+      // Aqui você pode também chamar sua rota API para trocar pelo token
     }
-  }, [code]);
+  }, [searchParams]);
 
   return (
     <div style={{ color: 'white', padding: '2rem' }}>
