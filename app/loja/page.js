@@ -10,7 +10,8 @@ export default function Loja() {
         { nome: "Camisa Memento", imagem: "/camisa-memento.png", preco: "R$ 80,00" },
         { nome: "Camisa Royal Fire", imagem: "/camisa-royalfire.png", preco: "R$ 55,00" },
         { nome: "Camisa Dream On", imagem: "/camisa-dreamon.png", preco: "R$ 65,00" },
-        { nome: "Camisa Justice", imagem: "/camisa-justice.jpeg", preco: "R$ 70,00" }
+        { nome: "Camisa Justice", imagem: "/camisa-justice.jpeg", preco: "R$ 70,00" },
+        { nome: "Camisa Liberty", imagem: "/camisa-liberty.jpeg", preco: "R$70,00"}
     ];
 
     return (

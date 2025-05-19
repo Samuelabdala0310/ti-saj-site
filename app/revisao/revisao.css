@@ -1,0 +1,18 @@
+select {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+select option {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}

@@ -2,50 +2,89 @@
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ShoppingCart, DollarSign } from "lucide-react";
 
 export default function Checkout() {
     const { carrinho } = useCarrinho();
     const router = useRouter();
     const [valorTotal, setValorTotal] = useState(0);
+    const [carregando, setCarregando] = useState(true);
 
     useEffect(() => {
-        // Calcula o valor total do carrinho
-        const total = carrinho.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
-        setValorTotal(total);
+        if (carrinho) {
+            const total = carrinho.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+            setValorTotal(total);
+            setCarregando(false);
+        }
     }, [carrinho]);
 
+    if (carregando) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-black text-white">
+                <p className="text-gray-400 text-lg">Carregando carrinho...</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="container mx-auto p-6 max-w-3xl">
-            <h1 className="text-3xl font-bold mb-4">Checkout</h1>
-            <p className="text-gray-600 mb-4">Revise os itens do seu carrinho antes de continuar.</p>
+        <div className="min-h-screen flex items-center justify-center bg-black text-white px-4 py-10">
+            <div className="w-full max-w-2xl bg-zinc-900 rounded-2xl shadow-lg p-6 border border-zinc-800 space-y-6">
+                <div className="text-center">
+                    <h1 className="text-3xl font-bold flex items-center justify-center gap-2 mb-1">
+                        <ShoppingCart className="w-6 h-6 text-purple-400" />
+                        Finalizar Pedido
+                    </h1>
+                    <p className="text-gray-400 text-sm">
+                        Revise seus produtos antes de prosseguir.
+                    </p>
+                </div>
 
-            {carrinho.length === 0 ? (
-                <p className="text-gray-500">Seu carrinho está vazio.</p>
-            ) : (
-                <>
-                    <h2 className="text-xl font-bold mb-2">Itens do Pedido:</h2>
-                    <ul className="mb-4">
-                        {carrinho.map((item, index) => (
-                            <li key={index} className="border-b py-2 flex justify-between">
-                                <span>{item.nome} ({item.tamanho}) - {item.quantidade}x</span>
-                                <span className="text-gray-700">R$ {item.preco.toFixed(2)}</span>
-                            </li>
-                        ))}
-                    </ul>
-
-                    <h2 className="text-lg font-bold mt-4">Total: <span className="text-green-600">R$ {valorTotal.toFixed(2)}</span></h2>
-
-                    {/* Botão para continuar para a página de revisão do endereço */}
-                    <div className="mt-6 flex justify-end">
-                        <button 
-                            onClick={() => router.push("/revisao")}
-                            className="bg-blue-500 text-white px-4 py-2 rounded-lg text-lg hover:bg-blue-600"
-                        >
-                            Continuar
-                        </button>
+                {carrinho.length === 0 ? (
+                    <div className="text-center py-10">
+                        <p className="text-gray-400">Seu carrinho está vazio.</p>
                     </div>
-                </>
-            )}
+                ) : (
+                    <>
+                        <div className="space-y-4">
+                            {carrinho.map((item, index) => (
+                                <div
+                                    key={index}
+                                    className="flex justify-between items-center bg-zinc-800 rounded-xl px-4 py-3"
+                                >
+                                    <div>
+                                        <p className="font-semibold text-white">{item.nome}</p>
+                                        <p className="text-sm text-gray-400">
+                                            Tamanho: {item.tamanho} | Quantidade: {item.quantidade}
+                                        </p>
+                                    </div>
+                                    <span className="text-green-400 font-semibold">
+                                        R$ {(item.preco * item.quantidade).toFixed(2)}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="border-t border-zinc-700 pt-4 flex items-center justify-between">
+                            <span className="flex items-center gap-2 text-lg font-semibold">
+                                <DollarSign className="w-5 h-5 text-green-400" />
+                                Total:
+                            </span>
+                            <span className="text-2xl font-bold text-green-500">
+                                R$ {valorTotal.toFixed(2)}
+                            </span>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button
+                                onClick={() => router.push("/revisao")}
+                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition"
+                            >
+                                Prosseguir para Revisão
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }

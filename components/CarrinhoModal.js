@@ -39,7 +39,6 @@ export default function CarrinhoModal({ isOpen, onClose }) {
                 <div className="mt-4">
                     <button 
                         onClick={() => {
-                            limparCarrinho(); // ✅ uso correto da função do contexto
                             onClose();
                             router.push("/checkout");
                         }}

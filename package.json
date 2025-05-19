@@ -9,15 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@brazilian-utils/brazilian-utils": "^1.0.0-rc.12",
     "@heroicons/react": "^2.2.0",
     "@stripe/stripe-js": "^7.0.0",
     "axios": "^1.9.0",
+    "lucide-react": "^0.510.0",
     "micro": "^10.0.1",
     "next": "15.2.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-draggable": "^4.4.6",
     "react-icons": "^5.5.0",
+    "react-input-mask-next": "^3.0.0-alpha.12",
     "react-responsive-carousel": "^3.2.23",
     "stripe": "^18.0.0"
   },

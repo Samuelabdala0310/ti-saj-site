@@ -34,7 +34,7 @@ export default function Produto() {
                     { tamanho: "G", largura: "54cm", altura: "74cm" },
                     { tamanho: "GG", largura: "56cm", altura: "76cm" }
                 ],
-                tamanhos: ["P", "M", "G", "GG"],
+                tamanhos: ["P", "M"],
                 avaliacao: 4.3,
                 numAvaliacoes: 15,
                 comentarios: [
@@ -74,7 +74,7 @@ export default function Produto() {
                     { tamanho: "G", largura: "54cm", altura: "74cm" },
                     { tamanho: "GG", largura: "56cm", altura: "76cm" }
                 ],
-            tamanhos: ["P", "M", "G", "GG"],
+            tamanhos: ["PP","P", "M", "G", "GG"],
             avaliacao: 4.3,
             numAvaliacoes: 15,
             comentarios: [
@@ -94,7 +94,7 @@ export default function Produto() {
                     { tamanho: "G", largura: "54cm", altura: "74cm" },
                     { tamanho: "GG", largura: "56cm", altura: "76cm" }
                 ],
-            tamanhos: ["P", "M", "G", "GG"],
+            tamanhos: ["P", "M", "G", "GG","G1"],
             avaliacao: 4.3,
             numAvaliacoes: 15,
             comentarios: [
@@ -134,7 +134,7 @@ export default function Produto() {
                     { tamanho: "G", largura: "54cm", altura: "74cm" },
                     { tamanho: "GG", largura: "56cm", altura: "76cm" }
                 ],
-            tamanhos: ["P", "M", "G", "GG"],
+            tamanhos: ["P", "M", "G", "GG","G1"],
             avaliacao: 4.3,
             numAvaliacoes: 15,
             comentarios: [
@@ -154,7 +154,7 @@ export default function Produto() {
                     { tamanho: "G", largura: "54cm", altura: "74cm" },
                     { tamanho: "GG", largura: "56cm", altura: "76cm" }
                 ],
-            tamanhos: ["P", "M", "G", "GG"],
+            tamanhos: ["P", "M", "G", "GG","G1"],
             avaliacao: 4.3,
             numAvaliacoes: 15,
             comentarios: [
@@ -174,14 +174,36 @@ export default function Produto() {
                     { tamanho: "G", largura: "54cm", altura: "74cm" },
                     { tamanho: "GG", largura: "56cm", altura: "76cm" }
                 ],
-            tamanhos: ["P", "M", "G", "GG"],
+            tamanhos: ["PP","P", "M", "G", "GG"],
             avaliacao: 4.3,
             numAvaliacoes: 15,
             comentarios: [
                     { usuario: "João", texto: "Ótima qualidade, recomendo!" },
                     { usuario: "Maria", texto: "Material excelente, muito confortável." }
                 ]
-    },
+                
+            },
+        "camisa-liberty": {
+            nome: "Camisa Liberty", 
+            imagens: ["/camisa-liberty.jpeg", "/camisa-liberty2.jpeg"], 
+            preco: 70.00, 
+            descricao: "O vento sopra a favor de quem ousa sonhar. Dream on, para todos que se encorajam a sonhar, pois dreaming is the first act of courage.", 
+            tecido: "Algodão 100%",
+            tabelaMedidas: [
+                    { tamanho: "P", largura: "50cm", altura: "70cm" },
+                    { tamanho: "M", largura: "52cm", altura: "72cm" },
+                    { tamanho: "G", largura: "54cm", altura: "74cm" },
+                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
+                ],
+            tamanhos: ["PP","P", "M", "G", "GG"],
+            avaliacao: 4.3,
+            numAvaliacoes: 15,
+            comentarios: [
+                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
+                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
+                ]
+        },
+
 }
 
     if (slug && produtos[slug]) {

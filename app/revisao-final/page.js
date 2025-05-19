@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useRouter } from "next/navigation";
+import { MapPin, ShoppingBag } from "lucide-react"; // Ícones modernos
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();
@@ -16,44 +17,57 @@ export default function RevisaoFinal() {
     }, []);
 
     return (
-        <div className="container mx-auto p-6 max-w-3xl">
-            <h1 className="text-3xl font-bold mb-4">Revisão Final</h1>
+        <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white flex items-center justify-center px-4 py-10">
+            <div className="backdrop-blur-lg bg-white/5 border border-zinc-700 p-10 rounded-3xl shadow-2xl w-full max-w-3xl">
+                <h1 className="text-4xl font-extrabold text-center mb-10 tracking-tight">🧾 Revisão Final</h1>
 
-            {carrinho.length === 0 ? (
-                <p className="text-gray-500">Seu carrinho está vazio.</p>
-            ) : (
-                <>
-                    <h2 className="text-xl font-bold mb-2">Itens do Pedido:</h2>
-                    <ul>
-                        {carrinho.map((item, index) => (
-                            <li key={index} className="border-b py-4">
-                                <span>{item.nome} ({item.tamanho}) - {item.quantidade}x</span>
-                            </li>
-                        ))}
-                    </ul>
+                {carrinho.length === 0 ? (
+                    <p className="text-gray-400 text-center text-lg">Seu carrinho está vazio.</p>
+                ) : (
+                    <>
+                        {/* Itens do Pedido */}
+                        <div className="mb-10">
+                            <h2 className="flex items-center gap-2 text-2xl font-semibold mb-4">
+                                <ShoppingBag className="text-green-400" /> Itens do Pedido
+                            </h2>
+                            <ul className="space-y-3">
+                                {carrinho.map((item, index) => (
+                                    <li key={index} className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 flex justify-between items-center">
+                                        <span className="font-medium text-lg">{item.nome} ({item.tamanho})</span>
+                                        <span className="text-green-400 font-semibold">{item.quantidade}x</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
-                    <h2 className="text-xl font-bold mt-4 mb-2">Endereço de Entrega:</h2>
-                    {endereco ? (
-                        <p>
-                            {endereco.rua}, Nº {endereco.numero}, {endereco.bairro} <br />
-                            {endereco.cidade} - {endereco.estado} <br />
-                            CEP: {endereco.cep}
-                        </p>
-                    ) : (
-                        <p className="text-red-500">Endereço não informado.</p>
-                    )}
+                        {/* Endereço */}
+                        <div className="mb-10">
+                            <h2 className="flex items-center gap-2 text-2xl font-semibold mb-4">
+                                <MapPin className="text-blue-400" /> Endereço de Entrega
+                            </h2>
+                            {endereco ? (
+                                <div className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 leading-relaxed">
+                                    <p>{endereco.rua}, Nº {endereco.numero}, {endereco.bairro}</p>
+                                    <p>{endereco.cidade} - {endereco.estado}</p>
+                                    <p>CEP: {endereco.cep}</p>
+                                </div>
+                            ) : (
+                                <p className="text-red-400">Endereço não informado.</p>
+                            )}
+                        </div>
 
-                    {/* Botão atualizado para ir para a página de pagamento */}
-                    <div className="mt-6 flex justify-end">
-                        <button 
-                            onClick={() => router.push("/pagamento")}
-                            className="bg-green-500 text-white px-4 py-2 rounded-lg text-lg hover:bg-green-600"
-                        >
-                            Confirmar Pedido
-                        </button>
-                    </div>
-                </>
-            )}
+                        {/* Botão Confirmar */}
+                        <div className="flex justify-end">
+                            <button
+                                onClick={() => router.push("/pagamento")}
+                                className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl"
+                            >
+                                Confirmar Pedido
+                            </button>
+                        </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 }
