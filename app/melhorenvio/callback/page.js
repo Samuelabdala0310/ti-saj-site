@@ -1,9 +1,10 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function CallbackContent() {
+export default function MelhorEnvioCallback() {
   const searchParams = useSearchParams();
   const [code, setCode] = useState(null);
 
