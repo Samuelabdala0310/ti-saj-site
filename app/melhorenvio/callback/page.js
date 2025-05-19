@@ -1,20 +1,19 @@
-'use client';
+use client';
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
 
 export default function MelhorEnvioCallback() {
-  const searchParams = useSearchParams();
   const [code, setCode] = useState(null);
 
   useEffect(() => {
-    const receivedCode = searchParams.get('code');
+    const params = new URLSearchParams(window.location.search);
+    const receivedCode = params.get('code');
     if (receivedCode) {
       console.log("Código recebido:", receivedCode);
       setCode(receivedCode);
     }
-  }, [searchParams]);
+  }, []);
 
   return (
     <div style={{ color: 'white', padding: '2rem' }}>
