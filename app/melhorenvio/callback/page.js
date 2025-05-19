@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
-export default function MelhorEnvioCallback() {
+export default function CallbackContent() {
   const searchParams = useSearchParams();
   const [code, setCode] = useState(null);
 
@@ -12,7 +12,6 @@ export default function MelhorEnvioCallback() {
     if (receivedCode) {
       console.log("Código recebido:", receivedCode);
       setCode(receivedCode);
-      // Aqui você pode também chamar sua rota API para trocar pelo token
     }
   }, [searchParams]);
 
