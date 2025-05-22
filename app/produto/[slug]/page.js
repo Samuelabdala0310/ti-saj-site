@@ -224,7 +224,7 @@ export default function Produto() {
     setFrete(null);
 
     try {
-      const response = await fetch("/api/cotar", {
+      const response = await fetch("/api/melhorenvio/cotar", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
