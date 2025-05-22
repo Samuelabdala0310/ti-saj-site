@@ -6,42 +6,40 @@ import Image from "next/image";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { FaStar, FaShoppingCart, FaTruck } from "react-icons/fa";
 
-
 export default function Produto() {
-    const { slug } = useParams();
-    const { adicionarAoCarrinho } = useCarrinho();
-    const [produto, setProduto] = useState(null);
-    const [quantidade, setQuantidade] = useState(1);
-    const [tamanhoSelecionado, setTamanhoSelecionado] = useState("");
-    const [imagemPrincipal, setImagemPrincipal] = useState("");
-    const [avaliacaoUsuario, setAvaliacaoUsuario] = useState(0);
-    const [abaAtiva, setAbaAtiva] = useState("descricao");
-    const [frete, setFrete] = useState(null);
-    const [cep, setCep] = useState("");
-    
+  const { slug } = useParams();
+  const { adicionarAoCarrinho } = useCarrinho();
 
-    useEffect(() => {
-        const produtos = {
-           "camisa-ekleticus": {
-                nome: "Camisa Ekleticus",
-                imagens: ["/camisa-ekleticus.png", "/produtos/foto1-2.png"],
-                preco: 35.0,
-                descricao: "Camisa confortável e estilosa, perfeita para qualquer ocasião.",
-                tecido: "Algodão 100%",
-                tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-                tamanhos: ["P", "M"],
-                avaliacao: 4.3,
-                numAvaliacoes: 15,
-                comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-            },
+  const [produto, setProduto] = useState(null);
+  const [quantidade, setQuantidade] = useState(1);
+  const [tamanhoSelecionado, setTamanhoSelecionado] = useState("");
+  const [imagemPrincipal, setImagemPrincipal] = useState("");
+  const [abaAtiva, setAbaAtiva] = useState("descricao");
+  const [frete, setFrete] = useState(null);
+  const [cep, setCep] = useState("");
+  const [carregandoFrete, setCarregandoFrete] = useState(false);
+
+  const produtos = {
+    "camisa-ekleticus": {
+      nome: "Camisa Ekleticus",
+      imagens: ["/camisa-ekleticus.png", "/produtos/foto1-2.png"],
+      preco: 35.0,
+      descricao: "Camisa confortável e estilosa, perfeita para qualquer ocasião.",
+      tecido: "Algodão 100%",
+      tabelaMedidas: [
+        { tamanho: "P", largura: "50cm", altura: "70cm" },
+        { tamanho: "M", largura: "52cm", altura: "72cm" },
+        { tamanho: "G", largura: "54cm", altura: "74cm" },
+        { tamanho: "GG", largura: "56cm", altura: "76cm" },
+      ],
+      tamanhos: ["P", "M", "G", "GG"],
+      avaliacao: 4.5,
+      numAvaliacoes: 23,
+      comentarios: [
+        { usuario: "João", texto: "Ótima qualidade, recomendo!" },
+        { usuario: "Maria", texto: "Material excelente, muito confortável." },
+      ],
+    },
         "camiseta-emyeges": {
             nome: "Camiseta Emyeges",
             imagens: ["/camisa-emyeges.png", "/camisa-emyeges2.png"],
@@ -206,169 +204,239 @@ export default function Produto() {
 
 }
 
-    if (slug && produtos[slug]) {
-        setProduto(produtos[slug]);
-        setImagemPrincipal(produtos[slug].imagens[0]);
+     useEffect(() => {
+    const produtoSelecionado = produtos[slug];
+    if (produtoSelecionado) {
+      setProduto(produtoSelecionado);
+      setImagemPrincipal(produtoSelecionado.imagens[0]);
     }
-}, [slug]);
+  }, [slug]);
 
-function handleAdicionarAoCarrinho() {
-    if (!tamanhoSelecionado) {
-        alert("Por favor, selecione um tamanho antes de adicionar ao carrinho!");
-        return;
-    }
-    adicionarAoCarrinho({ ...produto, quantidade, tamanho: tamanhoSelecionado });
-    alert(`${produto.nome} (${tamanhoSelecionado}) foi adicionado ao carrinho!`);
-}
+  if (!produto) return <div>Produto não encontrado</div>;
 
-function calcularFrete() {
+  const calcularFrete = async () => {
     if (!cep) {
-        alert("Digite um CEP válido!");
-        return;
+      alert("Digite um CEP válido.");
+      return;
     }
-    setFrete(`Frete estimado: R$ ${(Math.random() * 20 + 5).toFixed(2)}`);
-}
 
-function handleAvaliacao(novaAvaliacao) {
-    setAvaliacaoUsuario(novaAvaliacao);
-    alert(`Você avaliou com ${novaAvaliacao} estrelas!`);
-}
+    setCarregandoFrete(true);
+    setFrete(null);
 
-if (!produto) {
-    return <p className="text-center text-red-500 mt-10">Carregando produto...</p>;
-}
+    try {
+      const response = await fetch("/api/cotar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cep }),
+      });
 
-return (
-    <div className="container mx-auto p-6 max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-10">
+      if (!response.ok) {
+        throw new Error("Erro na cotação de frete.");
+      }
+
+      const data = await response.json();
+      setFrete(data);
+    } catch (error) {
+      console.error("Erro ao calcular frete:", error);
+      alert("Erro ao calcular frete. Verifique o CEP e tente novamente.");
+    } finally {
+      setCarregandoFrete(false);
+    }
+  };
+
+  const handleAdicionarCarrinho = () => {
+    if (!tamanhoSelecionado) {
+      alert("Selecione um tamanho.");
+      return;
+    }
+
+    adicionarAoCarrinho({
+      slug,
+      nome: produto.nome,
+      preco: produto.preco,
+      imagem: produto.imagens[0],
+      quantidade,
+      tamanho: tamanhoSelecionado,
+    });
+    alert("Produto adicionado ao carrinho!");
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto p-4">
+      <div className="grid md:grid-cols-2 gap-8">
         {/* Imagens */}
-        <div className="flex flex-col items-center">
-            <Image src={imagemPrincipal} alt={produto.nome} width={500} height={500} className="rounded-lg shadow-lg" />
-            <div className="mt-4 flex space-x-2">
-                {produto.imagens.map((img, index) => (
-                    <Image
-                        key={index}
-                        src={img}
-                        alt={`Imagem ${index + 1}`}
-                        width={80}
-                        height={80}
-                        className="border rounded-md cursor-pointer hover:opacity-75 transition"
-                        onClick={() => setImagemPrincipal(img)}
-                    />
-                ))}
-            </div>
+        <div>
+          <Image
+            src={imagemPrincipal}
+            alt={produto.nome}
+            width={600}
+            height={600}
+            className="rounded-xl w-full object-cover"
+          />
+          <div className="flex gap-4 mt-4">
+            {produto.imagens.map((img, idx) => (
+              <Image
+                key={idx}
+                src={img}
+                alt={`Imagem ${idx}`}
+                width={100}
+                height={100}
+                className={`rounded-lg cursor-pointer border ${
+                  imagemPrincipal === img ? "border-black" : "border-gray-300"
+                }`}
+                onClick={() => setImagemPrincipal(img)}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Informações do Produto */}
-        <div className="flex flex-col">
-            <h1 className="text-3xl font-bold">{produto.nome}</h1>
-            <p className="text-3xl text-green-600 font-bold mt-2">R$ {produto.preco.toFixed(2)}</p>
+        {/* Detalhes */}
+        <div>
+          <h1 className="text-3xl font-bold">{produto.nome}</h1>
+          <p className="text-xl text-gray-700 mt-2">
+            R$ {produto.preco.toFixed(2)}
+          </p>
+          <div className="flex items-center gap-1 mt-2">
+            {Array.from({ length: Math.round(produto.avaliacao) }).map(
+              (_, i) => (
+                <FaStar key={i} className="text-yellow-400" />
+              )
+            )}
+            <span className="text-sm text-gray-600">
+              ({produto.numAvaliacoes} avaliações)
+            </span>
+          </div>
 
-            {/* Avaliação */}
-            <div className="flex items-center mt-2 text-yellow-500">
-                {[...Array(5)].map((_, i) => (
-                    <FaStar key={i} className={i < Math.floor(produto.avaliacao) ? "text-yellow-500" : "text-gray-300"} />
-                ))}
-                <span className="ml-2 text-gray-700 text-lg">{Number(produto.avaliacao).toFixed(1)} / 5</span>
+          {/* Seleção de tamanho */}
+          <div className="mt-4">
+            <h3 className="font-semibold">Tamanho:</h3>
+            <div className="flex gap-2 mt-1">
+              {produto.tamanhos.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTamanhoSelecionado(t)}
+                  className={`border px-4 py-2 rounded-lg ${
+                    tamanhoSelecionado === t
+                      ? "border-black bg-black text-white"
+                      : "border-gray-400"
+                  }`}
+                >
+                  {t}
+                </button>
+              ))}
             </div>
+          </div>
 
-            {/* Avaliação do usuário */}
-            <div className="mt-4">
-                <p className="font-semibold">Avalie este produto:</p>
-                <div className="flex space-x-1 mt-1">
-                    {[...Array(5)].map((_, i) => (
-                        <FaStar
-                            key={i}
-                            className={`cursor-pointer ${i < avaliacaoUsuario ? "text-yellow-500" : "text-gray-300"}`}
-                            onClick={() => handleAvaliacao(i + 1)}
-                        />
-                    ))}
-                </div>
+          {/* Quantidade */}
+          <div className="mt-4">
+            <h3 className="font-semibold">Quantidade:</h3>
+            <input
+              type="number"
+              min={1}
+              value={quantidade}
+              onChange={(e) => setQuantidade(parseInt(e.target.value))}
+              className="border rounded-lg px-4 py-2 w-20"
+            />
+          </div>
+
+          {/* Frete */}
+          <div className="mt-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <FaTruck /> Calcular frete:
+            </h3>
+            <div className="flex gap-2 mt-2">
+              <input
+                type="text"
+                placeholder="Digite seu CEP"
+                value={cep}
+                onChange={(e) => setCep(e.target.value)}
+                className="border rounded-lg px-4 py-2"
+              />
+              <button
+                onClick={calcularFrete}
+                className="bg-black text-white px-4 py-2 rounded-lg"
+                disabled={carregandoFrete}
+              >
+                {carregandoFrete ? "Calculando..." : "Calcular"}
+              </button>
             </div>
+            {frete && (
+              <div className="mt-2 text-sm text-green-600">
+                <p>Frete: R$ {frete.valor.toFixed(2)}</p>
+                <p>Prazo: {frete.prazo} dias úteis</p>
+              </div>
+            )}
+          </div>
 
-            {/* Seleção de tamanho */}
-            <div className="mt-4">
-                <label className="font-semibold">Escolha o tamanho:</label>
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                    {produto.tamanhos.map((tamanho) => (
-                        <button
-                            key={tamanho}
-                            className={`px-4 py-2 border rounded-md transition ${
-                                tamanhoSelecionado === tamanho ? "bg-blue-500 text-white border-blue-700" : "border-gray-500"
-                            }`}
-                            onClick={() => setTamanhoSelecionado(tamanho)}
-                        >
-                            {tamanho}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Botão de adicionar ao carrinho */}
-            <button
-                onClick={handleAdicionarAoCarrinho}
-                className="mt-6 flex items-center justify-center bg-green-600 text-white px-6 py-3 rounded-md shadow-md hover:bg-green-700 transition"
-            >
-                <FaShoppingCart className="mr-2" /> Adicionar ao Carrinho
-            </button>
-
-            {/* Cálculo de Frete */}
-            <div className="mt-6">
-                <label className="font-semibold flex items-center">
-                    <FaTruck className="mr-2" /> Calcular Frete:
-                </label>
-                <div className="flex mt-2">
-                    <input
-                        type="text"
-                        placeholder="Digite seu CEP"
-                        value={cep}
-                        onChange={(e) => setCep(e.target.value)}
-                        className="border border-gray-500 p-2 rounded-l-md w-full"
-                    />
-                    <button
-                        onClick={calcularFrete}
-                        className="bg-blue-500 text-white px-4 py-2 rounded-r-md hover:bg-blue-600 transition"
-                    >
-                        Calcular
-                    </button>
-                </div>
-                {frete && <p className="text-gray-700 mt-2">{frete}</p>}
-            </div>
-
-            {/* Descrição e Comentários */}
-            <div className="mt-6">
-                <div className="flex border-b">
-                    <button className={`py-2 px-4 ${abaAtiva === "descricao" ? "border-b-2 border-blue-500" : ""}`} onClick={() => setAbaAtiva("descricao")}>
-                        Descrição
-                    </button>
-                    <button className={`py-2 px-4 ${abaAtiva === "comentarios" ? "border-b-2 border-blue-500" : ""}`} onClick={() => setAbaAtiva("comentarios")}>
-                        Comentários
-                    </button>
-                </div>
-                {abaAtiva === "descricao" && (
-                    <div className="text-gray-700 mt-2">
-                        <p><strong>Tecido:</strong> {produto.tecido}</p>
-                        <table className="border mt-2 w-full text-left">
-                            <thead>
-                                <tr className="border-b bg-gray-100">
-                                    <th className="p-2">Tamanho</th>
-                                    <th className="p-2">Largura</th>
-                                    <th className="p-2">Altura</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {produto.tabelaMedidas.map((medida, index) => (
-                                    <tr key={index} className="border-b">
-                                        <td className="p-2">{medida.tamanho}</td>
-                                        <td className="p-2">{medida.largura}</td>
-                                        <td className="p-2">{medida.altura}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
+          {/* Botão adicionar */}
+          <button
+            onClick={handleAdicionarCarrinho}
+            className="flex items-center gap-2 bg-black text-white px-6 py-3 rounded-lg mt-6 hover:opacity-90"
+          >
+            <FaShoppingCart /> Adicionar ao carrinho
+          </button>
         </div>
+      </div>
+
+      {/* Descrição e medidas */}
+      <div className="mt-10">
+        <div className="flex gap-4 border-b">
+          <button
+            onClick={() => setAbaAtiva("descricao")}
+            className={`pb-2 ${
+              abaAtiva === "descricao"
+                ? "border-b-2 border-black font-semibold"
+                : "text-gray-500"
+            }`}
+          >
+            Descrição
+          </button>
+          <button
+            onClick={() => setAbaAtiva("medidas")}
+            className={`pb-2 ${
+              abaAtiva === "medidas"
+                ? "border-b-2 border-black font-semibold"
+                : "text-gray-500"
+            }`}
+          >
+            Tabela de Medidas
+          </button>
+        </div>
+
+        {abaAtiva === "descricao" && (
+          <div className="mt-4">
+            <p>{produto.descricao}</p>
+            <p className="mt-2 text-gray-600">
+              <strong>Tecido:</strong> {produto.tecido}
+            </p>
+          </div>
+        )}
+
+        {abaAtiva === "medidas" && (
+          <div className="mt-4">
+            <table className="w-full text-left border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border p-2">Tamanho</th>
+                  <th className="border p-2">Largura</th>
+                  <th className="border p-2">Altura</th>
+                </tr>
+              </thead>
+              <tbody>
+                {produto.tabelaMedidas.map((medida) => (
+                  <tr key={medida.tamanho}>
+                    <td className="border p-2">{medida.tamanho}</td>
+                    <td className="border p-2">{medida.largura}</td>
+                    <td className="border p-2">{medida.altura}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
-);
+  );
 }
