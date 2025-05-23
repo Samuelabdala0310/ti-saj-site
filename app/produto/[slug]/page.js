@@ -221,7 +221,7 @@ export default function Produto() {
     }
 
     setCarregandoFrete(true);
-    setFrete(null);
+    setFrete([]);
 
     try {
       const response = await fetch("/api/melhorenvio/cotar", {
@@ -237,7 +237,13 @@ export default function Produto() {
       }
 
       const data = await response.json();
-      setFrete(data);
+
+      // Verifica se é array e define, senão seta vazio
+      if (Array.isArray(data)) {
+        setFrete(data);
+      } else {
+        setFrete([]);
+      }
     } catch (error) {
       console.error("Erro ao calcular frete:", error);
       alert("Erro ao calcular frete. Verifique o CEP e tente novamente.");
