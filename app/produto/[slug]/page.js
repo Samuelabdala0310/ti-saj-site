@@ -341,59 +341,58 @@ export default function Produto() {
             />
           </div>
 
-{/* Frete */}
-<div className="mt-4">
-  <h3 className="font-semibold flex items-center gap-2">
-    <FaTruck /> Calcular frete:
-  </h3>
-  <div className="flex gap-2 mt-2">
-    <input
-      type="text"
-      placeholder="Digite seu CEP"
-      value={cep}
-      onChange={(e) => setCep(e.target.value)}
-      className="border rounded-lg px-4 py-2"
-    />
-    <button
-      onClick={calcularFrete}
-      className="bg-black text-white px-4 py-2 rounded-lg"
-      disabled={carregandoFrete}
-    >
-      {carregandoFrete ? "Calculando..." : "Calcular"}
-    </button>
-  </div>
-
-  {frete && frete.length > 0 && (
-    <div className="mt-4">
-      <h4 className="font-semibold mb-2">Opções de frete:</h4>
-      <ul className="space-y-2">
-        {frete.map((opcao, idx) => (
-          <li
-            key={idx}
-            className="border rounded-lg p-3 flex justify-between items-center"
-          >
-            <div>
-              <p className="font-medium">{opcao.nome}</p>
-              <p className="text-sm text-gray-600">
-                Prazo: {opcao.prazo} dias úteis
-              </p>
+          {/* Frete */}
+          <div className="mt-4">
+            <h3 className="font-semibold flex items-center gap-2">
+              <FaTruck /> Calcular frete:
+            </h3>
+            <div className="flex gap-2 mt-2">
+              <input
+                type="text"
+                placeholder="Digite seu CEP"
+                value={cep}
+                onChange={(e) => setCep(e.target.value)}
+                className="border rounded-lg px-4 py-2"
+              />
+              <button
+                onClick={calcularFrete}
+                className="bg-black text-white px-4 py-2 rounded-lg"
+                disabled={carregandoFrete}
+              >
+                {carregandoFrete ? "Calculando..." : "Calcular"}
+              </button>
             </div>
-            <div className="font-semibold">
-              R$ {Number(opcao.valor).toFixed(2)}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
 
-  {frete && frete.length === 0 && (
-    <div className="mt-2 text-sm text-red-600">
-      Não foi possível calcular o frete para este CEP.
-    </div>
-  )}
-</div>
-                
+            {frete && frete.length > 0 && (
+              <div className="mt-4">
+                <h4 className="font-semibold mb-2">Opções de frete:</h4>
+                <ul className="space-y-2">
+                  {frete.map((opcao, idx) => (
+                    <li
+                      key={idx}
+                      className="border rounded-lg p-3 flex justify-between items-center"
+                    >
+                      <div>
+                        <p className="font-medium">{opcao.nome}</p>
+                        <p className="text-sm text-gray-600">
+                          Prazo: {opcao.prazo} dias úteis
+                        </p>
+                       </div>
+                      <div className="font-semibold">
+                        R$ {Number(opcao.valor).toFixed(2)}
+                      </div>
+                    </li>
+                   ))}
+                </ul>
+              </div>
+            )}
+
+            {frete && frete.length === 0 && (
+              <div className="mt-2 text-sm text-red-600">
+               Não foi possível calcular o frete para este CEP.
+              </div>
+            )}
+          </div>
           {/* Botão adicionar */}
           <button
             onClick={handleAdicionarCarrinho}
