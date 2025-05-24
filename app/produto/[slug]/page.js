@@ -18,6 +18,7 @@ export default function Produto() {
   const [frete, setFrete] = useState(null);
   const [cep, setCep] = useState("");
   const [carregandoFrete, setCarregandoFrete] = useState(false);
+  const [freteSelecionado, setFreteSelecionado] = useState(null);
 
   const produtos = {
     "camisa-ekleticus": {
@@ -376,7 +377,10 @@ export default function Produto() {
                   {frete.map((opcao, idx) => (
                     <li
                       key={idx}
-                      className="border rounded-lg p-3 flex justify-between items-center"
+                      className={`border rounded-lg p-3 flex justify-between items-center cursor-pointer ${
+                        freteSelecionado?.nome === opcao.nome ? "border-black" : "border-gray-300"
+                      }`}
+                      onClick={() => setFreteSelecionado(opcao)}
                     >
                       <div>
                         <p className="font-medium">{opcao.nome}</p>
