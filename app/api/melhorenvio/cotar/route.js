@@ -11,7 +11,7 @@ export async function POST(req) {
 
   const body = {
     from: {
-      postal_code: '04534011' // CEP de origem (ajuste para o seu)
+      postal_code: '89120000' // CEP de origem (ajuste para o seu)
     },
     to: {
       postal_code: cep
@@ -40,7 +40,7 @@ export async function POST(req) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.MELHOR_ENVIO_TOKEN}` // Seu token da Melhor Envio
+        Authorization: `Bearer ${process.env.SANDBOX_ACCESS_TOKEN}` // Seu token da Melhor Envio
       },
       body: JSON.stringify(body)
     });
