@@ -239,7 +239,7 @@ export default function Produto() {
       const data = await response.json();
 
       // Verifica se é array e define, senão seta vazio
-      if (Array.isArray(data)) {
+      if (Array.isArray(data) && data.length > 0) {
         setFrete(data);
       } else {
         setFrete([]);
@@ -393,7 +393,7 @@ export default function Produto() {
               </div>
             )}
 
-            {frete && frete.length === 0 && (
+            {frete && frete.length === 0 && !carregandoFrete &&(
               <div className="mt-2 text-sm text-red-600">
                Não foi possível calcular o frete para este CEP.
               </div>
