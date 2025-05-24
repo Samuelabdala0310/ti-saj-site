@@ -5,14 +5,21 @@ const CarrinhoContext = createContext();
 
 export function CarrinhoProvider({ children }) {
     const [carrinho, setCarrinho] = useState([]);
+    const [freteSelecionado, setFreteSelecionado] = useState(null);
     const [carrinhoCarregado, setCarrinhoCarregado] = useState(false);
 
     useEffect(() => {
         if (typeof window !== "undefined") {
             const carrinhoSalvo = localStorage.getItem("carrinho");
+            const freteSalvo = localStorage.getItem("frete");
+
             if (carrinhoSalvo) {
                 setCarrinho(JSON.parse(carrinhoSalvo));
             }
+            if (freteSalvo) {
+                setFreteSelecionado(JSON.parse(freteSalvo));
+            }
+
             setCarrinhoCarregado(true);
         }
     }, []);
@@ -20,8 +27,9 @@ export function CarrinhoProvider({ children }) {
     useEffect(() => {
         if (typeof window !== "undefined" && carrinhoCarregado) {
             localStorage.setItem("carrinho", JSON.stringify(carrinho));
+            localStorage.setItem("frete", JSON.stringify(freteSelecionado));
         }
-    }, [carrinho, carrinhoCarregado]);
+    }, [carrinho, freteSelecionado, carrinhoCarregado]);
 
     function adicionarAoCarrinho(produto) {
         setCarrinho((prevCarrinho) => {
@@ -55,8 +63,23 @@ export function CarrinhoProvider({ children }) {
 
     function limparCarrinho() {
         setCarrinho([]);
+        setFreteSelecionado(null);
         localStorage.removeItem("carrinho");
+        localStorage.removeItem("frete");
     }
+
+    function selecionarFrete(opcao) {
+        setFreteSelecionado(opcao);
+    }
+
+    const totalCarrinho = carrinho.reduce(
+        (total, item) => total + item.preco * item.quantidade,
+        0
+    );
+
+    const totalComFrete = freteSelecionado
+        ? totalCarrinho + Number(freteSelecionado.valor)
+        : totalCarrinho;
 
     return (
         <CarrinhoContext.Provider
@@ -66,6 +89,10 @@ export function CarrinhoProvider({ children }) {
                 adicionarAoCarrinho,
                 removerDoCarrinho,
                 limparCarrinho,
+                freteSelecionado,
+                selecionarFrete,
+                totalCarrinho,
+                totalComFrete,
             }}
         >
             {children}
