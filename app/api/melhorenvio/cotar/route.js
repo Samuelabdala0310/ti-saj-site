@@ -7,11 +7,11 @@ export async function POST(req) {
     return NextResponse.json({ error: 'CEP não informado.' }, { status: 400 });
   }
 
-  const url = `https://www.melhorenvio.com.br/api/v2/me/shipment/calculate`;
+  const url = `https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate`;
 
   const body = {
     from: {
-      postal_code: '89120000' // CEP de origem (ajuste para o seu)
+      postal_code: '89120000' // ✅ Substitua pelo seu CEP de origem
     },
     to: {
       postal_code: cep
@@ -27,7 +27,7 @@ export async function POST(req) {
         quantity: 1
       }
     ],
-    services: [], // Deixa vazio para retornar todas as opções possíveis
+    services: [], // Vazio = retorna todas as transportadoras
     options: {
       own_hand: false,
       receipt: false,
@@ -40,13 +40,15 @@ export async function POST(req) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.SANDBOX_ACCESS_TOKEN}` // Seu token da Melhor Envio
+        Authorization: `Bearer ${process.env.SANDBOX_ACCESS_TOKEN}`,
+        Accept: 'application/json'
       },
       body: JSON.stringify(body)
     });
 
     if (!response.ok) {
-      console.error(await response.text());
+      const errorText = await response.text();
+      console.error('Erro na resposta da API:', errorText);
       return NextResponse.json({ error: 'Erro na cotação.' }, { status: 500 });
     }
 
@@ -58,7 +60,7 @@ export async function POST(req) {
 
     const resultado = data.map(opcao => ({
       nome: opcao.name,
-      prazo: opcao.delivery_time,
+      prazo: opcao.delivery_time.days,
       valor: parseFloat(opcao.price)
     }));
 
