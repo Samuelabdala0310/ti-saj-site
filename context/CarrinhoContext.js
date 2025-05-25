@@ -69,6 +69,7 @@ export function CarrinhoProvider({ children }) {
     }
 
     function selecionarFrete(opcao) {
+        console.log("Frete selecionado:", opcao);
         setFreteSelecionado(opcao);
     }
 
