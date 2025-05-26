@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { FaStar, FaShoppingCart, FaTruck } from "react-icons/fa";
 
+
 export default function Produto() {
   const { slug } = useParams();
   const { adicionarAoCarrinho } = useCarrinho();
@@ -19,6 +20,8 @@ export default function Produto() {
   const [cep, setCep] = useState("");
   const [carregandoFrete, setCarregandoFrete] = useState(false);
   const [freteSelecionado, setFreteSelecionado] = useState(null);
+  const { selecionarFrete } = useCarrinho();
+ 
 
   const produtos = {
     "camisa-ekleticus": {
@@ -380,7 +383,11 @@ export default function Produto() {
                       className={`border rounded-lg p-3 flex justify-between items-center cursor-pointer ${
                         freteSelecionado?.nome === opcao.nome ? "border-black" : "border-gray-300"
                       }`}
-                      onClick={() => setFreteSelecionado(opcao)}
+                      onClick={() => {
+                        setFreteSelecionado(opcao);
+                        selecionarFrete(opcao);
+                      }}
+
                     >
                       <div>
                         <p className="font-medium">{opcao.nome}</p>
