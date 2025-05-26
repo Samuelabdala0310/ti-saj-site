@@ -6,30 +6,27 @@ import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();
-    const [endereco, setEndereco] = useState(null);
+    const [endereco, setEndereco] = useState<any>(null);
     const [frete, setFrete] = useState(0);
     const [nomeFrete, setNomeFrete] = useState("");
     const [valorProdutos, setValorProdutos] = useState(0);
     const router = useRouter();
 
     useEffect(() => {
-        // Buscar endereço salvo
+        // Buscar endereço salvo no localStorage
         const enderecoSalvo = localStorage.getItem("endereco");
         if (enderecoSalvo) {
             setEndereco(JSON.parse(enderecoSalvo));
         }
 
-        // Buscar frete salvo
+        // Buscar frete e nome do frete salvos no localStorage
         const freteSalvo = localStorage.getItem("frete");
         const nomeFreteSalvo = localStorage.getItem("nomeFrete");
-        if (freteSalvo) {
-            setFrete(parseFloat(freteSalvo));
-        }
-        if (nomeFreteSalvo) {
-            setNomeFrete(nomeFreteSalvo);
-        }
 
-        // Calcular total dos produtos
+        setFrete(freteSalvo ? parseFloat(freteSalvo) : 0);
+        setNomeFrete(nomeFreteSalvo ?? "");
+
+        // Calcular valor total dos produtos
         const total = carrinho.reduce(
             (acc, item) => acc + item.preco * item.quantidade,
             0
@@ -42,22 +39,34 @@ export default function RevisaoFinal() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white flex items-center justify-center px-4 py-10">
             <div className="backdrop-blur-lg bg-white/5 border border-zinc-700 p-10 rounded-3xl shadow-2xl w-full max-w-3xl">
-                <h1 className="text-4xl font-extrabold text-center mb-10 tracking-tight">🧾 Revisão Final</h1>
+                <h1 className="text-4xl font-extrabold text-center mb-10 tracking-tight">
+                    🧾 Revisão Final
+                </h1>
 
                 {carrinho.length === 0 ? (
-                    <p className="text-gray-400 text-center text-lg">Seu carrinho está vazio.</p>
+                    <p className="text-gray-400 text-center text-lg">
+                        Seu carrinho está vazio.
+                    </p>
                 ) : (
                     <>
                         {/* Itens do Pedido */}
                         <div className="mb-10">
                             <h2 className="flex items-center gap-2 text-2xl font-semibold mb-4">
-                                <ShoppingBag className="text-green-400" /> Itens do Pedido
+                                <ShoppingBag className="text-green-400" />
+                                Itens do Pedido
                             </h2>
                             <ul className="space-y-3">
                                 {carrinho.map((item, index) => (
-                                    <li key={index} className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 flex justify-between items-center">
-                                        <span className="font-medium text-lg">{item.nome} ({item.tamanho})</span>
-                                        <span className="text-green-400 font-semibold">{item.quantidade}x</span>
+                                    <li
+                                        key={index}
+                                        className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 flex justify-between items-center"
+                                    >
+                                        <span className="font-medium text-lg">
+                                            {item.nome} ({item.tamanho})
+                                        </span>
+                                        <span className="text-green-400 font-semibold">
+                                            {item.quantidade}x
+                                        </span>
                                     </li>
                                 ))}
                             </ul>
@@ -66,40 +75,57 @@ export default function RevisaoFinal() {
                         {/* Endereço */}
                         <div className="mb-10">
                             <h2 className="flex items-center gap-2 text-2xl font-semibold mb-4">
-                                <MapPin className="text-blue-400" /> Endereço de Entrega
+                                <MapPin className="text-blue-400" />
+                                Endereço de Entrega
                             </h2>
                             {endereco ? (
                                 <div className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 leading-relaxed">
-                                    <p>{endereco.rua}, Nº {endereco.numero}, {endereco.bairro}</p>
-                                    <p>{endereco.cidade} - {endereco.estado}</p>
+                                    <p>
+                                        {endereco.rua}, Nº {endereco.numero},{" "}
+                                        {endereco.bairro}
+                                    </p>
+                                    <p>
+                                        {endereco.cidade} - {endereco.estado}
+                                    </p>
                                     <p>CEP: {endereco.cep}</p>
                                 </div>
                             ) : (
-                                <p className="text-red-400">Endereço não informado.</p>
+                                <p className="text-red-400">
+                                    Endereço não informado.
+                                </p>
                             )}
                         </div>
 
                         {/* Resumo dos Valores */}
                         <div className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 space-y-4 mb-8">
                             <h2 className="flex items-center gap-2 text-2xl font-semibold mb-2">
-                                <DollarSign className="text-yellow-400" /> Resumo do Pedido
+                                <DollarSign className="text-yellow-400" />
+                                Resumo do Pedido
                             </h2>
+
                             <div className="flex justify-between">
-                                <span className="text-gray-300">Valor dos produtos:</span>
+                                <span className="text-gray-300">
+                                    Valor dos produtos:
+                                </span>
                                 <span className="text-white font-semibold">
                                     R$ {valorProdutos.toFixed(2)}
                                 </span>
                             </div>
+
                             <div className="flex justify-between">
                                 <span className="text-gray-300 flex items-center gap-1">
-                                    <Truck className="w-4 h-4 text-blue-400" /> {nomeFrete ? nomeFrete : "Frete"}:
+                                    <Truck className="w-4 h-4 text-blue-400" />
+                                    {nomeFrete ? nomeFrete : "Frete"}:
                                 </span>
                                 <span className="text-white font-semibold">
                                     R$ {frete.toFixed(2)}
                                 </span>
                             </div>
+
                             <div className="border-t border-zinc-600 pt-3 flex justify-between">
-                                <span className="text-lg font-semibold">Total Geral:</span>
+                                <span className="text-lg font-semibold">
+                                    Total Geral:
+                                </span>
                                 <span className="text-2xl text-green-500 font-bold">
                                     R$ {valorTotalGeral.toFixed(2)}
                                 </span>

@@ -8,15 +8,25 @@ export default function Pagamento() {
     const [mensagem, setMensagem] = useState("");
     const [qrCodePix, setQrCodePix] = useState(false);
     const [endereco, setEndereco] = useState(null);
+    const [frete, setFrete] = useState(0);
 
     useEffect(() => {
         const enderecoSalvo = localStorage.getItem("endereco");
         if (enderecoSalvo) {
             setEndereco(JSON.parse(enderecoSalvo));
         }
+
+        const freteSalvo = localStorage.getItem("frete");
+        if (freteSalvo) {
+            setFrete(parseFloat(freteSalvo));
+        }
     }, []);
 
-    const total = carrinho.reduce((acc, item) => acc + item.preco * item.quantidade, 0);
+    const totalProdutos = carrinho.reduce(
+        (acc, item) => acc + item.preco * item.quantidade,
+        0
+    );
+    const total = totalProdutos + frete;
 
     const finalizarPagamento = async () => {
         if (!metodoPagamento) {
@@ -26,7 +36,7 @@ export default function Pagamento() {
 
         setMensagem("✅ Redirecionando para o pagamento...");
 
-        const produtosCarrinho = carrinho.map(item => ({
+        const produtosCarrinho = carrinho.map((item) => ({
             nome: item.nome,
             quantidade: item.quantidade,
             preco: item.preco,
@@ -39,8 +49,8 @@ export default function Pagamento() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     items: produtosCarrinho,
-                    total,
                     metodoPagamento,
+                    frete,
                 }),
             });
 
@@ -77,7 +87,12 @@ export default function Pagamento() {
                         {item.nome} ({item.tamanho}) - Quantidade: {item.quantidade} - <strong>R$ {item.preco.toFixed(2)}</strong>
                     </p>
                 ))}
-                <h3 style={{ marginTop: "15px", fontSize: "18px", color: "#4caf50" }}>Total: R$ {total.toFixed(2)}</h3>
+                <p style={{ marginTop: "10px" }}>
+                    Frete: <strong>R$ {frete.toFixed(2)}</strong>
+                </p>
+                <h3 style={{ marginTop: "15px", fontSize: "18px", color: "#4caf50" }}>
+                    Total: R$ {total.toFixed(2)}
+                </h3>
             </section>
 
             <section style={{ marginBottom: "25px" }}>

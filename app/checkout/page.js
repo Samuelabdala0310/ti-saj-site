@@ -5,31 +5,15 @@ import { useEffect, useState } from "react";
 import { ShoppingCart, DollarSign, Truck } from "lucide-react";
 
 export default function Checkout() {
-    const { carrinho } = useCarrinho();
+    const { carrinho, freteSelecionado, totalCarrinho, totalComFrete } = useCarrinho();
     const router = useRouter();
-    const [valorTotalProdutos, setValorTotalProdutos] = useState(0);
-    const [valorFrete, setValorFrete] = useState(0);
     const [carregando, setCarregando] = useState(true);
 
     useEffect(() => {
         if (carrinho) {
-            const totalProdutos = carrinho.reduce(
-                (acc, item) => acc + item.preco * item.quantidade,
-                0
-            );
-
-            const totalFrete = carrinho.reduce(
-                (acc, item) => acc + (item.freteSelecionado ? Number(item.freteSelecionado.valor) : 0),
-                0
-            );
-
-            setValorTotalProdutos(totalProdutos);
-            setValorFrete(totalFrete);
             setCarregando(false);
         }
     }, [carrinho]);
-
-    const totalGeral = valorTotalProdutos + valorFrete;
 
     if (carregando) {
         return (
@@ -69,12 +53,6 @@ export default function Checkout() {
                                         <p className="text-sm text-gray-400">
                                             Tamanho: {item.tamanho} | Quantidade: {item.quantidade}
                                         </p>
-                                        {item.freteSelecionado && (
-                                            <p className="text-xs text-gray-500 flex items-center gap-1">
-                                                <Truck className="w-4 h-4" />
-                                                Frete: {item.freteSelecionado.nome} - R$ {Number(item.freteSelecionado.valor).toFixed(2)}
-                                            </p>
-                                        )}
                                     </div>
                                     <span className="text-green-400 font-semibold">
                                         R$ {(item.preco * item.quantidade).toFixed(2)}
@@ -90,26 +68,28 @@ export default function Checkout() {
                                     Produtos:
                                 </span>
                                 <span className="text-lg font-bold text-green-500">
-                                    R$ {valorTotalProdutos.toFixed(2)}
+                                    R$ {totalCarrinho.toFixed(2)}
                                 </span>
                             </div>
-                            {valorFrete > 0 && (
+
+                            {freteSelecionado && (
                                 <div className="flex items-center justify-between">
                                     <span className="flex items-center gap-2 text-lg font-semibold">
                                         <Truck className="w-5 h-5 text-blue-400" />
-                                        Frete:
+                                        Frete: {freteSelecionado.nome}
                                     </span>
                                     <span className="text-lg font-bold text-blue-400">
-                                        R$ {valorFrete.toFixed(2)}
+                                        R$ {Number(freteSelecionado.valor).toFixed(2)}
                                     </span>
                                 </div>
                             )}
+
                             <div className="flex items-center justify-between pt-2 border-t border-zinc-700">
                                 <span className="flex items-center gap-2 text-xl font-semibold">
                                     Total:
                                 </span>
                                 <span className="text-2xl font-bold text-green-500">
-                                    R$ {totalGeral.toFixed(2)}
+                                    R$ {totalComFrete.toFixed(2)}
                                 </span>
                             </div>
                         </div>
