@@ -2,19 +2,42 @@
 import { useEffect, useState } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useRouter } from "next/navigation";
-import { MapPin, ShoppingBag } from "lucide-react"; // Ícones modernos
+import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();
     const [endereco, setEndereco] = useState(null);
+    const [frete, setFrete] = useState(0);
+    const [nomeFrete, setNomeFrete] = useState("");
+    const [valorProdutos, setValorProdutos] = useState(0);
     const router = useRouter();
 
     useEffect(() => {
+        // Buscar endereço salvo
         const enderecoSalvo = localStorage.getItem("endereco");
         if (enderecoSalvo) {
             setEndereco(JSON.parse(enderecoSalvo));
         }
-    }, []);
+
+        // Buscar frete salvo
+        const freteSalvo = localStorage.getItem("frete");
+        const nomeFreteSalvo = localStorage.getItem("nomeFrete");
+        if (freteSalvo) {
+            setFrete(parseFloat(freteSalvo));
+        }
+        if (nomeFreteSalvo) {
+            setNomeFrete(nomeFreteSalvo);
+        }
+
+        // Calcular total dos produtos
+        const total = carrinho.reduce(
+            (acc, item) => acc + item.preco * item.quantidade,
+            0
+        );
+        setValorProdutos(total);
+    }, [carrinho]);
+
+    const valorTotalGeral = valorProdutos + frete;
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white flex items-center justify-center px-4 py-10">
@@ -54,6 +77,33 @@ export default function RevisaoFinal() {
                             ) : (
                                 <p className="text-red-400">Endereço não informado.</p>
                             )}
+                        </div>
+
+                        {/* Resumo dos Valores */}
+                        <div className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 space-y-4 mb-8">
+                            <h2 className="flex items-center gap-2 text-2xl font-semibold mb-2">
+                                <DollarSign className="text-yellow-400" /> Resumo do Pedido
+                            </h2>
+                            <div className="flex justify-between">
+                                <span className="text-gray-300">Valor dos produtos:</span>
+                                <span className="text-white font-semibold">
+                                    R$ {valorProdutos.toFixed(2)}
+                                </span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-300 flex items-center gap-1">
+                                    <Truck className="w-4 h-4 text-blue-400" /> {nomeFrete ? nomeFrete : "Frete"}:
+                                </span>
+                                <span className="text-white font-semibold">
+                                    R$ {frete.toFixed(2)}
+                                </span>
+                            </div>
+                            <div className="border-t border-zinc-600 pt-3 flex justify-between">
+                                <span className="text-lg font-semibold">Total Geral:</span>
+                                <span className="text-2xl text-green-500 font-bold">
+                                    R$ {valorTotalGeral.toFixed(2)}
+                                </span>
+                            </div>
                         </div>
 
                         {/* Botão Confirmar */}

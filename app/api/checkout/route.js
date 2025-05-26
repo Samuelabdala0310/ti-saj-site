@@ -12,7 +12,7 @@ export async function POST(req) {
         product_data: {
           name: `${item.nome} (${item.tamanho})`,
         },
-        unit_amount: item.preco * 100,
+        unit_amount: item.preco * 100, // Stripe trabalha com centavos
       },
       quantity: item.quantidade,
     }));
@@ -25,7 +25,6 @@ export async function POST(req) {
 
     const payment_method_types = metodosPermitidos[metodoPagamento] || ["card"];
 
-    // Define a URL base (usa variável de ambiente em produção e localhost no dev)
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
     const session = await stripe.checkout.sessions.create({
@@ -39,9 +38,12 @@ export async function POST(req) {
     return Response.json({ url: session.url });
   } catch (err) {
     console.error("❌ Erro na criação da sessão de checkout:", err);
-    return new Response(JSON.stringify({ error: "Erro ao criar sessão" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: "Erro ao criar sessão" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
