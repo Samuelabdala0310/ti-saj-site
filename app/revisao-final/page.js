@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useRouter } from "next/navigation";
 import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
+import { FreteContext } from "@/context/FreteContext";
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();

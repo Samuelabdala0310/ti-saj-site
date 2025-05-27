@@ -2,6 +2,7 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { CarrinhoProvider } from "@/context/CarrinhoContext";
+import { FreteProvider } from "@/context/FreteContext";
 
 export default function RootLayout({ children }) {
     return (

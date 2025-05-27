@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
+import { FreteContext } from "@/context/FreteContext";
 
 export default function Pagamento() {
     const { carrinho, limparCarrinho } = useCarrinho();
