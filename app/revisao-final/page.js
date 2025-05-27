@@ -6,7 +6,7 @@ import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();
-    const [endereco, setEndereco] = useState<any>(null);
+    const [endereco, setEndereco] = useState(null);
     const [frete, setFrete] = useState(0);
     const [nomeFrete, setNomeFrete] = useState("");
     const [valorProdutos, setValorProdutos] = useState(0);
