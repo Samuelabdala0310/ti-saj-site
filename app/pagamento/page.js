@@ -1,33 +1,22 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useEffect } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
-import { FreteContext } from "@/context/FreteContext";
+import { useFrete } from "@/context/FreteContext";
 
 export default function Pagamento() {
-    const { carrinho, limparCarrinho } = useCarrinho();
+    const { carrinho } = useCarrinho();
+    const { frete, endereco } = useFrete();
+
     const [metodoPagamento, setMetodoPagamento] = useState("");
     const [mensagem, setMensagem] = useState("");
     const [qrCodePix, setQrCodePix] = useState(false);
-    const [endereco, setEndereco] = useState(null);
-    const [frete, setFrete] = useState(0);
-
-    useEffect(() => {
-        const enderecoSalvo = localStorage.getItem("endereco");
-        if (enderecoSalvo) {
-            setEndereco(JSON.parse(enderecoSalvo));
-        }
-
-        const freteSalvo = localStorage.getItem("frete");
-        if (freteSalvo) {
-            setFrete(parseFloat(freteSalvo));
-        }
-    }, []);
 
     const totalProdutos = carrinho.reduce(
         (acc, item) => acc + item.preco * item.quantidade,
         0
     );
-    const total = totalProdutos + frete;
+    const total = totalProdutos + (frete || 0);
 
     const finalizarPagamento = async () => {
         if (!metodoPagamento) {
@@ -89,7 +78,7 @@ export default function Pagamento() {
                     </p>
                 ))}
                 <p style={{ marginTop: "10px" }}>
-                    Frete: <strong>R$ {frete.toFixed(2)}</strong>
+                    Frete: <strong>R$ {frete ? frete.toFixed(2) : "0.00"}</strong>
                 </p>
                 <h3 style={{ marginTop: "15px", fontSize: "18px", color: "#4caf50" }}>
                     Total: R$ {total.toFixed(2)}

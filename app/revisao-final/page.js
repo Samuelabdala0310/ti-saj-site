@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useRouter } from "next/navigation";
 import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
@@ -7,9 +7,8 @@ import { FreteContext } from "@/context/FreteContext";
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();
+    const { frete, nomeFrete } = useContext(FreteContext);
     const [endereco, setEndereco] = useState(null);
-    const [frete, setFrete] = useState(0);
-    const [nomeFrete, setNomeFrete] = useState("");
     const [valorProdutos, setValorProdutos] = useState(0);
     const router = useRouter();
 
@@ -20,13 +19,6 @@ export default function RevisaoFinal() {
             setEndereco(JSON.parse(enderecoSalvo));
         }
 
-        // Buscar frete e nome do frete salvos no localStorage
-        const freteSalvo = localStorage.getItem("frete");
-        const nomeFreteSalvo = localStorage.getItem("nomeFrete");
-
-        setFrete(freteSalvo ? parseFloat(freteSalvo) : 0);
-        setNomeFrete(nomeFreteSalvo ?? "");
-
         // Calcular valor total dos produtos
         const total = carrinho.reduce(
             (acc, item) => acc + item.preco * item.quantidade,
@@ -35,7 +27,7 @@ export default function RevisaoFinal() {
         setValorProdutos(total);
     }, [carrinho]);
 
-    const valorTotalGeral = valorProdutos + frete;
+    const valorTotalGeral = valorProdutos + (frete || 0);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white flex items-center justify-center px-4 py-10">
@@ -119,7 +111,7 @@ export default function RevisaoFinal() {
                                     {nomeFrete ? nomeFrete : "Frete"}:
                                 </span>
                                 <span className="text-white font-semibold">
-                                    R$ {frete.toFixed(2)}
+                                    R$ {frete ? frete.toFixed(2) : "0.00"}
                                 </span>
                             </div>
 
