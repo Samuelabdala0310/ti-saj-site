@@ -1,25 +1,23 @@
 "use client";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
+import { useFrete } from "@/context/FreteContext";
 import { useRouter } from "next/navigation";
 import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
-import { FreteContext } from "@/context/FreteContext";
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();
-    const { frete, nomeFrete } = useContext(FreteContext);
+    const { frete, nomeFrete } = useFrete();
     const [endereco, setEndereco] = useState(null);
     const [valorProdutos, setValorProdutos] = useState(0);
     const router = useRouter();
 
     useEffect(() => {
-        // Buscar endereço salvo no localStorage
         const enderecoSalvo = localStorage.getItem("endereco");
         if (enderecoSalvo) {
             setEndereco(JSON.parse(enderecoSalvo));
         }
 
-        // Calcular valor total dos produtos
         const total = carrinho.reduce(
             (acc, item) => acc + item.preco * item.quantidade,
             0
