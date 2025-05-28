@@ -13,8 +13,10 @@ export default function RootLayout({ children }) {
             </head>
             <body>
                 <CarrinhoProvider>
-                    <Navbar />
-                    {children}
+                    <FreteProvider>
+                        <Navbar />
+                        {children}
+                    </FreteProvider>
                 </CarrinhoProvider>
             </body>
         </html>
