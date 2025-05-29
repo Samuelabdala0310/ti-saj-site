@@ -46,7 +46,7 @@ export async function POST(req) {
       line_items,
       mode: "payment",
       success_url: `${baseUrl}/sucesso`,
-      cancel_url: `${baseUrl}/erro`,
+      cancel_url: `${baseUrl}/cancelado`,
     });
 
     return Response.json({ url: session.url });
