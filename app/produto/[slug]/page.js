@@ -16,11 +16,12 @@ export default function Produto() {
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState("");
   const [imagemPrincipal, setImagemPrincipal] = useState("");
   const [abaAtiva, setAbaAtiva] = useState("descricao");
-  const [frete, setFrete] = useState(null);
+  const [freteLocal, setFreteLocal] = useState(null);
   const [cep, setCep] = useState("");
   const [carregandoFrete, setCarregandoFrete] = useState(false);
   const [freteSelecionado, setFreteSelecionado] = useState(null);
-  const { selecionarFrete } = useCarrinho();
+  const { setFrete, setNomeFrete } = useFrete();
+  const [opcoesFrete, setOpcoesFrete] = useState([]);
  
 
   const produtos = {
@@ -225,7 +226,7 @@ export default function Produto() {
     }
 
     setCarregandoFrete(true);
-    setFrete([]);
+    setOpcoesFrete([]); // Estado local para lista de opções de frete
 
     try {
       const response = await fetch("/api/melhorenvio/cotar", {
@@ -244,9 +245,9 @@ export default function Produto() {
 
       // Verifica se é array e define, senão seta vazio
       if (Array.isArray(data) && data.length > 0) {
-        setFrete(data);
+        setOpcoesFrete(data);
       } else {
-        setFrete([]);
+        setOpcoesFrete([]);
       }
     } catch (error) {
       console.error("Erro ao calcular frete:", error);
@@ -373,19 +374,20 @@ export default function Produto() {
               </button>
             </div>
 
-            {frete && frete.length > 0 && (
+            {opcoesFrete && opcoesFrete.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-semibold mb-2">Opções de frete:</h4>
                 <ul className="space-y-2">
-                  {frete.map((opcao, idx) => (
+                  {opcoesFrete.map((opcao, idx) => (
                     <li
                       key={idx}
                       className={`border rounded-lg p-3 flex justify-between items-center cursor-pointer ${
                         freteSelecionado?.nome === opcao.nome ? "border-black" : "border-gray-300"
                       }`}
                       onClick={() => {
+                        setFrete(Number(opcao.valor));
+                        setNomeFrete(opcao.nome);
                         setFreteSelecionado(opcao);
-                        selecionarFrete(opcao);
                       }}
 
                     >
@@ -404,7 +406,7 @@ export default function Produto() {
               </div>
             )}
 
-            {frete && frete.length === 0 && !carregandoFrete &&(
+            {opcoesFrete && opcoesFrete.length === 0 && !carregandoFrete &&(
               <div className="mt-2 text-sm text-red-600">
                Não foi possível calcular o frete para este CEP.
               </div>

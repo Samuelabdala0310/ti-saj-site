@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useFrete } from "@/context/FreteContext";
@@ -7,7 +8,7 @@ import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
 
 export default function RevisaoFinal() {
     const { carrinho } = useCarrinho();
-    const { frete, nomeFrete } = useFrete();
+    const { frete, nomeFrete, calcularFrete, cep, setCep } = useFrete();
     const [endereco, setEndereco] = useState(null);
     const [valorProdutos, setValorProdutos] = useState(0);
     const router = useRouter();
@@ -15,7 +16,12 @@ export default function RevisaoFinal() {
     useEffect(() => {
         const enderecoSalvo = localStorage.getItem("endereco");
         if (enderecoSalvo) {
-            setEndereco(JSON.parse(enderecoSalvo));
+            const enderecoObj = JSON.parse(enderecoSalvo);
+            setEndereco(enderecoObj);
+            if (enderecoObj.cep) {
+                setCep(enderecoObj.cep);
+                calcularFrete(enderecoObj.cep);
+            }
         }
 
         const total = carrinho.reduce(
@@ -23,7 +29,7 @@ export default function RevisaoFinal() {
             0
         );
         setValorProdutos(total);
-    }, [carrinho]);
+    }, [carrinho, calcularFrete, setCep]);
 
     const valorTotalGeral = valorProdutos + (frete || 0);
 
@@ -109,7 +115,9 @@ export default function RevisaoFinal() {
                                     {nomeFrete ? nomeFrete : "Frete"}:
                                 </span>
                                 <span className="text-white font-semibold">
-                                    R$ {frete ? frete.toFixed(2) : "0.00"}
+                                    {frete > 0
+                                        ? `R$ ${frete.toFixed(2)}`
+                                        : "Grátis"}
                                 </span>
                             </div>
 

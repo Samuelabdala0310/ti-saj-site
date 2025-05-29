@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import { useEffect } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useFrete } from "@/context/FreteContext";
 
@@ -16,11 +15,22 @@ export default function Pagamento() {
         (acc, item) => acc + item.preco * item.quantidade,
         0
     );
-    const total = totalProdutos + (frete || 0);
+
+    const total = frete !== null ? totalProdutos + frete : totalProdutos;
 
     const finalizarPagamento = async () => {
+        if (!endereco) {
+            setMensagem("⚠️ Informe um endereço de entrega.");
+            return;
+        }
+
+        if (frete === null) {
+            setMensagem("⚠️ Calcule o frete antes de finalizar.");
+            return;
+        }
+
         if (!metodoPagamento) {
-            setMensagem("⚠️ Selecione um método de pagamento!");
+            setMensagem("⚠️ Selecione um método de pagamento.");
             return;
         }
 
@@ -41,6 +51,7 @@ export default function Pagamento() {
                     items: produtosCarrinho,
                     metodoPagamento,
                     frete,
+                    endereco,
                 }),
             });
 
@@ -78,7 +89,9 @@ export default function Pagamento() {
                     </p>
                 ))}
                 <p style={{ marginTop: "10px" }}>
-                    Frete: <strong>R$ {frete ? frete.toFixed(2) : "0.00"}</strong>
+                    Frete: <strong>
+                        {frete !== null ? `R$ ${frete.toFixed(2)}` : "A calcular"}
+                    </strong>
                 </p>
                 <h3 style={{ marginTop: "15px", fontSize: "18px", color: "#4caf50" }}>
                     Total: R$ {total.toFixed(2)}
@@ -102,7 +115,12 @@ export default function Pagamento() {
                 <h2 style={{ fontSize: "20px", marginBottom: "10px" }}>💳 Escolha o Método de Pagamento</h2>
                 <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
                     {["pix", "boleto", "cartao"].map((metodo) => (
-                        <label key={metodo} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <label key={metodo} style={{
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px"
+                        }}>
                             <input
                                 type="radio"
                                 name="pagamento"

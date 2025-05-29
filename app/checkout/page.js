@@ -1,13 +1,17 @@
 "use client";
 import { useCarrinho } from "@/context/CarrinhoContext";
+import { useFrete } from "@/context/FreteContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ShoppingCart, DollarSign, Truck } from "lucide-react";
 
 export default function Checkout() {
-    const { carrinho, freteSelecionado, totalCarrinho, totalComFrete } = useCarrinho();
+    const { carrinho, totalCarrinho } = useCarrinho();
+    const { frete, nomeFrete } = useFrete();
     const router = useRouter();
     const [carregando, setCarregando] = useState(true);
+
+    const totalComFrete = totalCarrinho + (frete || 0);
 
     useEffect(() => {
         if (carrinho) {
@@ -72,14 +76,14 @@ export default function Checkout() {
                                 </span>
                             </div>
 
-                            {freteSelecionado && (
+                            {frete > 0 && (
                                 <div className="flex items-center justify-between">
                                     <span className="flex items-center gap-2 text-lg font-semibold">
                                         <Truck className="w-5 h-5 text-blue-400" />
-                                        Frete: {freteSelecionado.nome}
+                                        Frete: {nomeFrete}
                                     </span>
                                     <span className="text-lg font-bold text-blue-400">
-                                        R$ {Number(freteSelecionado.valor).toFixed(2)}
+                                        R$ {Number(frete).toFixed(2)}
                                     </span>
                                 </div>
                             )}
@@ -96,7 +100,7 @@ export default function Checkout() {
 
                         <div className="flex justify-end pt-2">
                             <button
-                                onClick={() => router.push("/revisao")}
+                                onClick={() => router.push("/checkout/revisao-final")}
                                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition"
                             >
                                 Prosseguir para Revisão

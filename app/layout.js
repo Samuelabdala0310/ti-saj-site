@@ -9,6 +9,7 @@ export default function RootLayout({ children }) {
         <html lang="pt-BR">
             <head>
                 <title>TI-SAJ</title>
+                <meta name="description" content="Sua loja de camisetas personalizadas" />
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
             </head>
             <body>
