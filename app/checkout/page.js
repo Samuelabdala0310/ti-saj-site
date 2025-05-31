@@ -16,6 +16,7 @@ export default function Checkout() {
   const [carregandoFrete, setCarregandoFrete] = useState(false);
   const [opcoesFrete, setOpcoesFrete] = useState([]);
 
+  // Calcula total incluindo frete
   const totalComFrete = totalCarrinho + (frete || 0);
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function Checkout() {
         setOpcoesFrete(data);
       } else {
         setOpcoesFrete([]);
+        alert("Nenhuma opção de frete disponível para esse CEP.");
       }
     } catch (error) {
       console.error("Erro ao calcular frete:", error);
@@ -122,9 +124,7 @@ export default function Checkout() {
                   placeholder="Digite seu CEP"
                   maxLength={8}
                   value={cep}
-                  onChange={(e) =>
-                    setCep(e.target.value.replace(/\D/g, ""))
-                  }
+                  onChange={(e) => setCep(e.target.value.replace(/\D/g, ""))}
                   className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <button
@@ -140,17 +140,17 @@ export default function Checkout() {
               {opcoesFrete.length > 0 && (
                 <div className="space-y-2">
                   {opcoesFrete.map((opcao, index) => {
-                    // Garante que preco seja string para usar replace
-                    const precoString =
-                      typeof opcao.preco === "string" ? opcao.preco : "0";
-                    const precoLimpo = precoString.replace(",", ".");
+                    // Ajuste para garantir que preco seja número válido
+                    const precoRaw = String(opcao.preco || "0").trim();
+                    const precoFormatado = precoRaw.replace(",", ".");
+                    const precoLimpo = precoFormatado.replace(/[^\d.]/g, "");
                     const precoNumero = parseFloat(precoLimpo);
 
                     return (
                       <div
                         key={index}
                         onClick={() => {
-                          if (!isNaN(precoNumero)) {
+                          if (!isNaN(precoNumero) && precoNumero > 0) {
                             setFrete(precoNumero);
                             setNomeFrete(opcao.nome || "");
                           } else {
@@ -166,9 +166,7 @@ export default function Checkout() {
                       >
                         <div>
                           <p className="font-semibold">{opcao.nome}</p>
-                          <p className="text-sm text-gray-400">
-                            {opcao.prazo} dias úteis
-                          </p>
+                          <p className="text-sm text-gray-400">{opcao.prazo} dias úteis</p>
                         </div>
                         <span className="font-bold text-blue-400">
                           R$ {isNaN(precoNumero) ? "0.00" : precoNumero.toFixed(2)}
@@ -192,22 +190,24 @@ export default function Checkout() {
                 </span>
               </div>
 
-              {frete > 0 && (
+              {frete > 0 ? (
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-lg font-semibold">
                     <Truck className="w-5 h-5 text-blue-400" />
                     Frete: {nomeFrete}
                   </span>
                   <span className="text-lg font-bold text-blue-400">
-                    R$ {Number(frete).toFixed(2)}
+                    R$ {frete.toFixed(2)}
                   </span>
+                </div>
+              ) : (
+                <div className="text-sm text-gray-400 italic">
+                  Selecione uma opção de frete para o cálculo do total.
                 </div>
               )}
 
               <div className="flex items-center justify-between pt-2 border-t border-zinc-700">
-                <span className="flex items-center gap-2 text-xl font-semibold">
-                  Total:
-                </span>
+                <span className="flex items-center gap-2 text-xl font-semibold">Total:</span>
                 <span className="text-2xl font-bold text-green-500">
                   R$ {totalComFrete.toFixed(2)}
                 </span>
@@ -217,7 +217,10 @@ export default function Checkout() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => router.push("/revisao")}
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition"
+                disabled={frete <= 0} // bloqueia se frete não selecionado
+                className={`${
+                  frete > 0 ? "bg-green-500 hover:bg-green-600" : "bg-gray-600 cursor-not-allowed"
+                } text-white px-6 py-3 rounded-full font-semibold transition`}
               >
                 Prosseguir para Revisão
               </button>
