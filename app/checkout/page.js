@@ -122,7 +122,9 @@ export default function Checkout() {
                   placeholder="Digite seu CEP"
                   maxLength={8}
                   value={cep}
-                  onChange={(e) => setCep(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) =>
+                    setCep(e.target.value.replace(/\D/g, ""))
+                  }
                   className="w-full bg-zinc-900 border border-zinc-700 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
                 <button
@@ -138,7 +140,10 @@ export default function Checkout() {
               {opcoesFrete.length > 0 && (
                 <div className="space-y-2">
                   {opcoesFrete.map((opcao, index) => {
-                    const precoLimpo = opcao.preco.replace(",", ".");
+                    // Garante que preco seja string para usar replace
+                    const precoString =
+                      typeof opcao.preco === "string" ? opcao.preco : "0";
+                    const precoLimpo = precoString.replace(",", ".");
                     const precoNumero = parseFloat(precoLimpo);
 
                     return (
@@ -147,7 +152,7 @@ export default function Checkout() {
                         onClick={() => {
                           if (!isNaN(precoNumero)) {
                             setFrete(precoNumero);
-                            setNomeFrete(opcao.nome);
+                            setNomeFrete(opcao.nome || "");
                           } else {
                             setFrete(0);
                             setNomeFrete("");
@@ -161,7 +166,9 @@ export default function Checkout() {
                       >
                         <div>
                           <p className="font-semibold">{opcao.nome}</p>
-                          <p className="text-sm text-gray-400">{opcao.prazo} dias úteis</p>
+                          <p className="text-sm text-gray-400">
+                            {opcao.prazo} dias úteis
+                          </p>
                         </div>
                         <span className="font-bold text-blue-400">
                           R$ {isNaN(precoNumero) ? "0.00" : precoNumero.toFixed(2)}
@@ -198,7 +205,9 @@ export default function Checkout() {
               )}
 
               <div className="flex items-center justify-between pt-2 border-t border-zinc-700">
-                <span className="flex items-center gap-2 text-xl font-semibold">Total:</span>
+                <span className="flex items-center gap-2 text-xl font-semibold">
+                  Total:
+                </span>
                 <span className="text-2xl font-bold text-green-500">
                   R$ {totalComFrete.toFixed(2)}
                 </span>
