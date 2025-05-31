@@ -221,7 +221,7 @@ export default function Produto() {
 
   const calcularFrete = async () => {
     if (!cep) {
-      alert("Digite um CEP válido.");
+      alert("Digite um CEP válido (somente números, 8 dígitos).");
       return;
     }
 
