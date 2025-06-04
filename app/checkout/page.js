@@ -141,7 +141,6 @@ export default function Checkout() {
                 <div className="space-y-2">
                   {opcoesFrete.map((opcao, index) => {
                     // Ajuste para garantir que preco seja número válido
-                    const precoRaw = String(opcao.preco || "0").trim();
                     const precoFormatado = precoRaw.replace(",", ".");
                     const precoLimpo = precoFormatado.replace(/[^\d.]/g, "");
                     const precoNumero = parseFloat(precoLimpo);

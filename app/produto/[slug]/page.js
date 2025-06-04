@@ -5,8 +5,8 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { FaStar, FaShoppingCart, FaTruck } from "react-icons/fa";
-
-
+import { useFrete } from "@/context/FreteContext";
+import { produtos } from "@/data/produto";
 export default function Produto() {
   const { slug } = useParams();
   const { adicionarAoCarrinho } = useCarrinho();
@@ -16,200 +16,21 @@ export default function Produto() {
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState("");
   const [imagemPrincipal, setImagemPrincipal] = useState("");
   const [abaAtiva, setAbaAtiva] = useState("descricao");
-  const [freteLocal, setFreteLocal] = useState(null);
-  const [cep, setCep] = useState("");
-  const [carregandoFrete, setCarregandoFrete] = useState(false);
   const [freteSelecionado, setFreteSelecionado] = useState(null);
-  const { setFrete, setNomeFrete } = useFrete();
-  const [opcoesFrete, setOpcoesFrete] = useState([]);
- 
 
-  const produtos = {
-    "camisa-ekleticus": {
-      nome: "Camisa Ekleticus",
-      imagens: ["/camisa-ekleticus.png", "/produtos/foto1-2.png"],
-      preco: 35.0,
-      descricao: "Camisa confortável e estilosa, perfeita para qualquer ocasião.",
-      tecido: "Algodão 100%",
-      tabelaMedidas: [
-        { tamanho: "P", largura: "50cm", altura: "70cm" },
-        { tamanho: "M", largura: "52cm", altura: "72cm" },
-        { tamanho: "G", largura: "54cm", altura: "74cm" },
-        { tamanho: "GG", largura: "56cm", altura: "76cm" },
-      ],
-      tamanhos: ["P", "M", "G", "GG"],
-      avaliacao: 4.5,
-      numAvaliacoes: 23,
-      comentarios: [
-        { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-        { usuario: "Maria", texto: "Material excelente, muito confortável." },
-      ],
-    },
-        "camiseta-emyeges": {
-            nome: "Camiseta Emyeges",
-            imagens: ["/camisa-emyeges.png", "/camisa-emyeges2.png"],
-            preco: 40.00,
-            descricao: "Camisa básica e versátil para qualquer ocasião.",
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["P", "M", "G", "GG"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-            },
-        "camisa-angyal": {
-            nome: "Camisa Angyal",
-            imagens: ["/camisa-angyal.png", "/camisa-angyal2.png"],
-            preco: 60.00,
-            descricao: "Camisa Oversized para mais conforto e estilo nas suas resenhas.",
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["PP","P", "M", "G", "GG"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-            },
-        "camisa-lihtsus": { 
-            nome: "Camisa Lithsus", 
-            imagens: ["/camisa-lithsus.png", "/camisa-lithsus2.png"], 
-            preco: 55.00, 
-            descricao: "Camisa básica ideal para garantir estilo e conforto em qualquer ocasião.", 
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["P", "M", "G", "GG","G1"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-            },
-        "camisa-memento": { 
-            nome: "Camisa Memento", 
-            imagens: ["/camisa-memento.png", "/camisa-memento2.png"], 
-            preco: 80.00, 
-            descricao: "Com sua modelagem oversized e estampa remetendo à criatividade e memória da arte, nossa camisa produzida juntamente com a quest se torna um belo diferencial em seu guarda roupa para você se destacar em qualquer rolê.", 
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["P", "M", "G", "GG"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-            },
-        "camisa-royal-fire": { 
-            nome: "Camisa Royal Fire", 
-            imagens: ["/camisa-royalfire.png", "/camisa-royalfire2.png"], 
-            preco: 55.00, 
-            descricao: "Camisa básica com estampa minimalista, mas com estilo grandioso.", 
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["P", "M", "G", "GG","G1"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-            },
-        "camisa-dream-on": { 
-            nome: "Camisa Dream On", 
-            imagens: ["/camisa-dreamon.png", "/camisa-dreamon2.png"], 
-            preco: 65.00, 
-            descricao: "O vento sopra a favor de quem ousa sonhar. Dream on, para todos que se encorajam a sonhar, pois dreaming is the first act of courage.", 
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["P", "M", "G", "GG","G1"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-            },
-        "camisa-justice": { 
-            nome: "Camisa Justice", 
-            imagens: ["/camisa-justice.jpeg", "/camisa-justice2.jpeg"], 
-            preco: 70.00, 
-            descricao: "O vento sopra a favor de quem ousa sonhar. Dream on, para todos que se encorajam a sonhar, pois dreaming is the first act of courage.", 
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["PP","P", "M", "G", "GG"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-                
-            },
-        "camisa-liberty": {
-            nome: "Camisa Liberty", 
-            imagens: ["/camisa-liberty.jpeg", "/camisa-liberty2.jpeg"], 
-            preco: 70.00, 
-            descricao: "O vento sopra a favor de quem ousa sonhar. Dream on, para todos que se encorajam a sonhar, pois dreaming is the first act of courage.", 
-            tecido: "Algodão 100%",
-            tabelaMedidas: [
-                    { tamanho: "P", largura: "50cm", altura: "70cm" },
-                    { tamanho: "M", largura: "52cm", altura: "72cm" },
-                    { tamanho: "G", largura: "54cm", altura: "74cm" },
-                    { tamanho: "GG", largura: "56cm", altura: "76cm" }
-                ],
-            tamanhos: ["PP","P", "M", "G", "GG"],
-            avaliacao: 4.3,
-            numAvaliacoes: 15,
-            comentarios: [
-                    { usuario: "João", texto: "Ótima qualidade, recomendo!" },
-                    { usuario: "Maria", texto: "Material excelente, muito confortável." }
-                ]
-        },
+  const {
+    setFrete,
+    setNomeFrete,
+    calcularFrete: calcularFreteContext,
+    cep,
+    setCep,
+    opcoesFrete,
+    setOpcoesFrete,
+  } = useFrete();
 
-}
+  const [carregandoFrete, setCarregandoFrete] = useState(false);
 
-     useEffect(() => {
+  useEffect(() => {
     const produtoSelecionado = produtos[slug];
     if (produtoSelecionado) {
       setProduto(produtoSelecionado);
@@ -220,20 +41,18 @@ export default function Produto() {
   if (!produto) return <div>Produto não encontrado</div>;
 
   const calcularFrete = async () => {
-    if (!cep) {
-      alert("Digite um CEP válido (somente números, 8 dígitos).");
+    if (!cep || cep.length !== 8) {
+      alert("Digite um CEP válido com 8 dígitos.");
       return;
     }
 
     setCarregandoFrete(true);
-    setOpcoesFrete([]); // Estado local para lista de opções de frete
+    setOpcoesFrete([]);
 
     try {
       const response = await fetch("/api/melhorenvio/cotar", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cep }),
       });
 
@@ -243,7 +62,6 @@ export default function Produto() {
 
       const data = await response.json();
 
-      // Verifica se é array e define, senão seta vazio
       if (Array.isArray(data) && data.length > 0) {
         setOpcoesFrete(data);
       } else {
@@ -271,6 +89,7 @@ export default function Produto() {
       quantidade,
       tamanho: tamanhoSelecionado,
     });
+
     alert("Produto adicionado ao carrinho!");
   };
 
@@ -320,7 +139,7 @@ export default function Produto() {
             </span>
           </div>
 
-          {/* Seleção de tamanho */}
+          {/* Tamanho */}
           <div className="mt-4">
             <h3 className="font-semibold">Tamanho:</h3>
             <div className="flex gap-2 mt-1">
@@ -364,6 +183,7 @@ export default function Produto() {
                 value={cep}
                 onChange={(e) => setCep(e.target.value)}
                 className="border rounded-lg px-4 py-2"
+                maxLength={8}
               />
               <button
                 onClick={calcularFrete}
@@ -374,7 +194,7 @@ export default function Produto() {
               </button>
             </div>
 
-            {opcoesFrete && opcoesFrete.length > 0 && (
+            {opcoesFrete.length > 0 && (
               <div className="mt-4">
                 <h4 className="font-semibold mb-2">Opções de frete:</h4>
                 <ul className="space-y-2">
@@ -382,36 +202,38 @@ export default function Produto() {
                     <li
                       key={idx}
                       className={`border rounded-lg p-3 flex justify-between items-center cursor-pointer ${
-                        freteSelecionado?.nome === opcao.nome ? "border-black" : "border-gray-300"
+                        freteSelecionado?.nome === opcao.nome
+                          ? "border-black"
+                          : "border-gray-300"
                       }`}
                       onClick={() => {
                         setFrete(Number(opcao.valor));
                         setNomeFrete(opcao.nome);
                         setFreteSelecionado(opcao);
                       }}
-
                     >
                       <div>
                         <p className="font-medium">{opcao.nome}</p>
                         <p className="text-sm text-gray-600">
                           Prazo: {opcao.prazo} dias úteis
                         </p>
-                       </div>
+                      </div>
                       <div className="font-semibold">
                         R$ {Number(opcao.valor).toFixed(2)}
                       </div>
                     </li>
-                   ))}
+                  ))}
                 </ul>
               </div>
             )}
 
-            {opcoesFrete && opcoesFrete.length === 0 && !carregandoFrete &&(
+            {opcoesFrete.length === 0 && !carregandoFrete && (
               <div className="mt-2 text-sm text-red-600">
-               Não foi possível calcular o frete para este CEP.
+                Não foi possível calcular o frete para este CEP.
               </div>
             )}
           </div>
+
           {/* Botão adicionar */}
           <button
             onClick={handleAdicionarCarrinho}
