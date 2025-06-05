@@ -16,7 +16,6 @@ export default function Checkout() {
   const [carregandoFrete, setCarregandoFrete] = useState(false);
   const [opcoesFrete, setOpcoesFrete] = useState([]);
 
-  // Calcula total incluindo frete
   const totalComFrete = totalCarrinho + (frete || 0);
 
   useEffect(() => {
@@ -27,7 +26,7 @@ export default function Checkout() {
 
   const calcularFrete = async () => {
     if (!cep || cep.length !== 8) {
-      alert("Digite um CEP válido (somente números, 8 dígitos).");
+      alert("Digite um CEP válido (8 números).");
       return;
     }
 
@@ -42,7 +41,17 @@ export default function Checkout() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cep }),
+        body: JSON.stringify({
+          cep,
+          produtos: carrinho.map((item) => ({
+            nome: item.nome,
+            quantidade: item.quantidade,
+            altura: 4,
+            largura: 20,
+            comprimento: 25,
+            peso: 0.3,
+          })),
+        }),
       });
 
       if (!response.ok) {
@@ -55,11 +64,11 @@ export default function Checkout() {
         setOpcoesFrete(data);
       } else {
         setOpcoesFrete([]);
-        alert("Nenhuma opção de frete disponível para esse CEP.");
+        alert("Nenhuma opção de frete disponível para este CEP.");
       }
     } catch (error) {
       console.error("Erro ao calcular frete:", error);
-      alert("Erro ao calcular frete. Verifique o CEP e tente novamente.");
+      alert("Erro ao calcular frete. Verifique seu CEP e tente novamente.");
     } finally {
       setCarregandoFrete(false);
     }
@@ -92,6 +101,7 @@ export default function Checkout() {
           </div>
         ) : (
           <>
+            {/* Itens do Carrinho */}
             <div className="space-y-4">
               {carrinho.map((item, index) => (
                 <div
@@ -111,7 +121,7 @@ export default function Checkout() {
               ))}
             </div>
 
-            {/* Seção de Frete */}
+            {/* Cálculo de Frete */}
             <div className="bg-zinc-800 rounded-xl p-4 space-y-3">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Truck className="w-5 h-5 text-blue-400" />
@@ -140,22 +150,16 @@ export default function Checkout() {
               {opcoesFrete.length > 0 && (
                 <div className="space-y-2">
                   {opcoesFrete.map((opcao, index) => {
-                    // Ajuste para garantir que preco seja número válido
-                    const precoFormatado = opcao.preco.replace(",", ".");
-                    const precoLimpo = precoFormatado.replace(/[^\d.]/g, "");
-                    const precoNumero = parseFloat(precoLimpo);
+                    const preco = parseFloat(
+                      (opcao.preco || "0").replace(",", ".").replace(/[^\d.]/g, "")
+                    );
 
                     return (
                       <div
                         key={index}
                         onClick={() => {
-                          if (!isNaN(precoNumero) && precoNumero > 0) {
-                            setFrete(precoNumero);
-                            setNomeFrete(opcao.nome || "");
-                          } else {
-                            setFrete(0);
-                            setNomeFrete("");
-                          }
+                          setFrete(preco);
+                          setNomeFrete(opcao.nome);
                         }}
                         className={`flex justify-between items-center px-4 py-2 rounded-xl border cursor-pointer ${
                           nomeFrete === opcao.nome
@@ -165,10 +169,12 @@ export default function Checkout() {
                       >
                         <div>
                           <p className="font-semibold">{opcao.nome}</p>
-                          <p className="text-sm text-gray-400">{opcao.prazo} dias úteis</p>
+                          <p className="text-sm text-gray-400">
+                            Prazo: {opcao.prazo} dias úteis
+                          </p>
                         </div>
                         <span className="font-bold text-blue-400">
-                          R$ {isNaN(precoNumero) ? "0.00" : precoNumero.toFixed(2)}
+                          R$ {isNaN(preco) ? "0.00" : preco.toFixed(2)}
                         </span>
                       </div>
                     );
@@ -201,7 +207,7 @@ export default function Checkout() {
                 </div>
               ) : (
                 <div className="text-sm text-gray-400 italic">
-                  Selecione uma opção de frete para o cálculo do total.
+                  Selecione uma opção de frete para calcular o total.
                 </div>
               )}
 
@@ -213,10 +219,11 @@ export default function Checkout() {
               </div>
             </div>
 
+            {/* Botão de prosseguir */}
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => router.push("/revisao")}
-                disabled={frete <= 0} // bloqueia se frete não selecionado
+                disabled={frete <= 0}
                 className={`${
                   frete > 0 ? "bg-green-500 hover:bg-green-600" : "bg-gray-600 cursor-not-allowed"
                 } text-white px-6 py-3 rounded-full font-semibold transition`}

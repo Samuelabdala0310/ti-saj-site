@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useFrete } from "@/context/FreteContext";
 import { useRouter } from "next/navigation";
-import { DollarSign, MapPin, Truck, CreditCard, QrCode } from "lucide-react";
+import { DollarSign, MapPin, Truck, CreditCard, QrCode, Barcode } from "lucide-react";
 
 export default function Pagamento() {
     const { carrinho } = useCarrinho();
@@ -13,7 +13,6 @@ export default function Pagamento() {
     const [endereco, setEndereco] = useState(null);
     const [valorProdutos, setValorProdutos] = useState(0);
     const [metodoPagamento, setMetodoPagamento] = useState("");
-    const [qrCodePix, setQrCodePix] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -32,17 +31,34 @@ export default function Pagamento() {
 
     const valorTotalGeral = valorProdutos + (frete || 0);
 
-    const handlePagamento = () => {
+    const handlePagamento = async () => {
         if (!metodoPagamento) {
             alert("Selecione um método de pagamento.");
             return;
         }
 
-        if (metodoPagamento === "pix") {
-            setQrCodePix(true);
-        } else {
-            alert("Pagamento aprovado com Cartão! ✅");
-            router.push("/sucesso");
+        try {
+            const response = await fetch("/api/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    items: carrinho,
+                    metodoPagamento,
+                    frete,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Erro ao criar checkout");
+            }
+
+            const { url } = await response.json();
+            window.location.href = url;
+        } catch (error) {
+            console.error("Erro no checkout:", error);
+            alert("Erro ao processar o pagamento.");
         }
     };
 
@@ -123,12 +139,9 @@ export default function Pagamento() {
                     <h2 className="text-2xl font-semibold mb-4">
                         Selecione o Método de Pagamento
                     </h2>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-wrap">
                         <button
-                            onClick={() => {
-                                setMetodoPagamento("pix");
-                                setQrCodePix(false);
-                            }}
+                            onClick={() => setMetodoPagamento("pix")}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl border ${
                                 metodoPagamento === "pix"
                                     ? "border-green-500 bg-green-600"
@@ -140,10 +153,7 @@ export default function Pagamento() {
                         </button>
 
                         <button
-                            onClick={() => {
-                                setMetodoPagamento("cartao");
-                                setQrCodePix(false);
-                            }}
+                            onClick={() => setMetodoPagamento("cartao")}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl border ${
                                 metodoPagamento === "cartao"
                                     ? "border-green-500 bg-green-600"
@@ -153,45 +163,30 @@ export default function Pagamento() {
                             <CreditCard className="w-5 h-5" />
                             Cartão
                         </button>
+
+                        <button
+                            onClick={() => setMetodoPagamento("boleto")}
+                            className={`flex items-center gap-2 px-6 py-3 rounded-xl border ${
+                                metodoPagamento === "boleto"
+                                    ? "border-green-500 bg-green-600"
+                                    : "border-zinc-600 bg-zinc-700/50"
+                            }`}
+                        >
+                            <Barcode className="w-5 h-5" />
+                            Boleto
+                        </button>
                     </div>
                 </div>
 
-                {/* QR Code PIX */}
-                {qrCodePix && (
-                    <div className="mb-6">
-                        <h3 className="text-xl font-semibold mb-2">
-                            Escaneie o QR Code abaixo para pagar via PIX:
-                        </h3>
-                        <div className="bg-white p-4 rounded-xl">
-                            <img
-                                src="/qrcode-exemplo.png"
-                                alt="QR Code PIX"
-                                className="w-60 h-60 mx-auto"
-                            />
-                        </div>
-                        <button
-                            onClick={() => {
-                                alert("Pagamento aprovado com PIX! ✅");
-                                router.push("/sucesso");
-                            }}
-                            className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl"
-                        >
-                            Confirmar Pagamento
-                        </button>
-                    </div>
-                )}
-
                 {/* Botão Finalizar */}
-                {!qrCodePix && (
-                    <div className="flex justify-end">
-                        <button
-                            onClick={handlePagamento}
-                            className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl"
-                        >
-                            Finalizar Pedido
-                        </button>
-                    </div>
-                )}
+                <div className="flex justify-end">
+                    <button
+                        onClick={handlePagamento}
+                        className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl"
+                    >
+                        Finalizar Pedido
+                    </button>
+                </div>
             </div>
         </div>
     );
