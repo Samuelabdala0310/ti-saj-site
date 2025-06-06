@@ -2,20 +2,22 @@
 import './Navbar.css';
 import Link from "next/link";
 import { useCarrinho } from "@/context/CarrinhoContext";
-import { ShoppingCartIcon } from "@heroicons/react/24/outline";
+import { ShoppingCartIcon, UserIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
 import CarrinhoModal from "@/components/CarrinhoModal";
+import LoginModal from "@/components/LoginModal"; // importação do componente de login
 
 export default function Navbar() {
-    const { carrinho } = useCarrinho(); // Removido setCarrinho
+    const { carrinho } = useCarrinho();
     const [mostrarCarrinho, setMostrarCarrinho] = useState(false);
+    const [mostrarLogin, setMostrarLogin] = useState(false);
     const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
     }, []);
 
-    if (!isClient) return null; // Evita erro de hidratação
+    if (!isClient) return null;
 
     const totalItens = carrinho.reduce((total, item) => total + item.quantidade, 0);
 
@@ -31,7 +33,12 @@ export default function Navbar() {
                     <Link href="/contato" className="hover:text-gray-300">Contato</Link>
                     <Link href="/sobre" className="hover:text-gray-300">Sobre</Link>
 
-                    {/* Botão do carrinho com indicador de itens */}
+                    {/* Botão de login */}
+                    <button onClick={() => setMostrarLogin(true)} className="relative">
+                        <UserIcon className="h-6 w-6 text-white" />
+                    </button>
+
+                    {/* Botão do carrinho */}
                     <button onClick={() => setMostrarCarrinho(true)} className="relative">
                         <ShoppingCartIcon className="h-6 w-6 text-white" />
                         {totalItens > 0 && (
@@ -43,8 +50,18 @@ export default function Navbar() {
                 </div>
             </nav>
 
-            {/* Modal do carrinho corrigido e ajustado */}
-            {mostrarCarrinho && <CarrinhoModal isOpen={mostrarCarrinho} onClose={() => setMostrarCarrinho(false)} />}
+            {/* Modais */}
+            {mostrarCarrinho && (
+                <CarrinhoModal
+                    isOpen={mostrarCarrinho}
+                    onClose={() => setMostrarCarrinho(false)}
+                />
+            )}
+            {mostrarLogin && (
+                <LoginModal
+                    onClose={() => setMostrarLogin(false)}
+                />
+            )}
         </>
     );
 }

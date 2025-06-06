@@ -1,12 +1,14 @@
 "use client";
 
 import { useCarrinho } from "@/context/CarrinhoContext";
+import { useFreteContext } from "@/context/FreteContext"; // Importa o contexto de frete
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ShoppingCart, DollarSign } from "lucide-react";
+import { ShoppingCart, DollarSign, Truck } from "lucide-react";
 
 export default function Checkout() {
   const { carrinho, totalCarrinho } = useCarrinho();
+  const { freteSelecionado } = useFreteContext(); // Usa o frete selecionado
   const router = useRouter();
   const [carregando, setCarregando] = useState(true);
 
@@ -15,6 +17,9 @@ export default function Checkout() {
       setCarregando(false);
     }
   }, [carrinho]);
+
+  const valorFrete = freteSelecionado?.valor || 0;
+  const totalFinal = totalCarrinho + valorFrete;
 
   if (carregando) {
     return (
@@ -67,11 +72,21 @@ export default function Checkout() {
             <div className="border-t border-zinc-700 pt-4 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-lg font-semibold">
+                  <Truck className="w-5 h-5 text-blue-400" />
+                  Frete:
+                </span>
+                <span className="text-lg font-medium text-blue-300">
+                  R$ {valorFrete.toFixed(2)}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-2 text-lg font-semibold">
                   <DollarSign className="w-5 h-5 text-green-400" />
-                  Total:
+                  Total com frete:
                 </span>
                 <span className="text-2xl font-bold text-green-500">
-                  R$ {totalCarrinho.toFixed(2)}
+                  R$ {totalFinal.toFixed(2)}
                 </span>
               </div>
             </div>
