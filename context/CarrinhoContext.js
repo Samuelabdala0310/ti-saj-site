@@ -17,8 +17,16 @@ export function CarrinhoProvider({ children }) {
                 setCarrinho(JSON.parse(carrinhoSalvo));
             }
             if (freteSalvo) {
-                setFreteSelecionado(JSON.parse(freteSalvo));
-            }
+              try {
+                const freteObj = JSON.parse(freteSalvo);
+                if (freteObj && typeof freteObj === "object") {
+                  setFreteSelecionado(freteObj);
+                }
+              } catch (e) {
+                console.warn("Erro ao carregar frete do localStorage:", e);
+                setFreteSelecionado(null); // ou mantenha indefinido
+              }
+            } 
 
             setCarrinhoCarregado(true);
         }
