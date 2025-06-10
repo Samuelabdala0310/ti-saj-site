@@ -1,22 +1,32 @@
 "use client";
 
 import { useCarrinho } from "@/context/CarrinhoContext";
-import { useFrete } from "@/context/FreteContext"; // ✅ Corrigido aqui
+import { useFrete } from "@/context/FreteContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ShoppingCart, DollarSign, Truck } from "lucide-react";
+import LoginModal from "@/components/LoginModal"; // certifique-se que o caminho está certo
 
 export default function Checkout() {
   const { carrinho, totalCarrinho } = useCarrinho();
-  const { frete, nomeFrete } = useFrete(); // ✅ Corrigido aqui
+  const { frete, nomeFrete } = useFrete();
+  const { usuario } = useAuth(); // ← pega o usuário
   const router = useRouter();
   const [carregando, setCarregando] = useState(true);
+  const [mostrarLoginModal, setMostrarLoginModal] = useState(false); // ← controla o modal
 
   useEffect(() => {
+    if (!usuario) {
+      setMostrarLoginModal(true); // ← abre o modal se não estiver logado
+    } else {
+      setMostrarLoginModal(false); // ← fecha se estiver logado
+    }
+
     if (carrinho) {
       setCarregando(false);
     }
-  }, [carrinho]);
+  }, [usuario, carrinho]);
 
   const valorFrete = frete || 0;
   const totalFinal = totalCarrinho + valorFrete;
@@ -31,6 +41,8 @@ export default function Checkout() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white px-4 py-10">
+      {mostrarLoginModal && <LoginModal onClose={() => setMostrarLoginModal(false)} />}
+
       <div className="w-full max-w-2xl bg-zinc-900 rounded-2xl shadow-lg p-6 border border-zinc-800 space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold flex items-center justify-center gap-2 mb-1">
@@ -48,7 +60,6 @@ export default function Checkout() {
           </div>
         ) : (
           <>
-            {/* Itens do Carrinho */}
             <div className="space-y-4">
               {carrinho.map((item, index) => (
                 <div
@@ -68,7 +79,6 @@ export default function Checkout() {
               ))}
             </div>
 
-            {/* Totais */}
             <div className="border-t border-zinc-700 pt-4 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-lg font-semibold">
@@ -91,11 +101,11 @@ export default function Checkout() {
               </div>
             </div>
 
-            {/* Botão de prosseguir */}
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => router.push("/revisao")}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition"
+                disabled={!usuario} // evita que o botão funcione sem login
               >
                 Prosseguir para Revisão
               </button>
