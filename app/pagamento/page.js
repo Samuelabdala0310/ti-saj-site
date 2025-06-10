@@ -13,6 +13,9 @@ export default function Pagamento() {
     const [endereco, setEndereco] = useState(null);
     const [valorProdutos, setValorProdutos] = useState(0);
     const [metodoPagamento, setMetodoPagamento] = useState("");
+    const [freteLocal, setFreteLocal] = useState(null);
+    const [nomeFreteLocal, setNomeFreteLocal] = useState("");
+
     const router = useRouter();
 
     useEffect(() => {
@@ -27,9 +30,22 @@ export default function Pagamento() {
             0
         );
         setValorProdutos(total);
-    }, [carrinho]);
 
-    const valorTotalGeral = valorProdutos + (frete || 0);
+        // Recupera frete do localStorage se não estiver no contexto
+        if (frete === null) {
+            const freteSalvo = localStorage.getItem("frete");
+            const nomeFreteSalvo = localStorage.getItem("nomeFrete");
+
+            if (freteSalvo) {
+                setFreteLocal(parseFloat(freteSalvo));
+                setNomeFreteLocal(nomeFreteSalvo || "");
+            }
+        }
+    }, [carrinho, frete]);
+
+    const freteFinal = frete ?? freteLocal ?? 0;
+    const nomeFreteFinal = nomeFrete || nomeFreteLocal || "Frete";
+    const valorTotalGeral = valorProdutos + freteFinal;
 
     const handlePagamento = async () => {
         if (!metodoPagamento) {
@@ -46,7 +62,7 @@ export default function Pagamento() {
                 body: JSON.stringify({
                     items: carrinho,
                     metodoPagamento,
-                    frete,
+                    frete: freteFinal,
                 }),
             });
 
@@ -114,11 +130,11 @@ export default function Pagamento() {
                         <div className="flex justify-between">
                             <span className="text-gray-300 flex items-center gap-1">
                                 <Truck className="w-4 h-4 text-blue-400" />
-                                {nomeFrete ? nomeFrete : "Frete"}:
+                                {nomeFreteFinal}:
                             </span>
                             <span className="text-white font-semibold">
-                                {frete > 0
-                                    ? `R$ ${frete.toFixed(2)}`
+                                {freteFinal > 0
+                                    ? `R$ ${freteFinal.toFixed(2)}`
                                     : "Grátis"}
                             </span>
                         </div>

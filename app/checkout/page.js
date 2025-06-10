@@ -6,27 +6,32 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ShoppingCart, DollarSign, Truck } from "lucide-react";
-import LoginModal from "@/components/LoginModal"; // certifique-se que o caminho está certo
+import LoginModal from "@/components/LoginModal";
 
 export default function Checkout() {
   const { carrinho, totalCarrinho } = useCarrinho();
-  const { frete, nomeFrete } = useFrete();
-  const { usuario } = useAuth(); // ← pega o usuário
+  const freteCtx = useFrete();
+  const { usuario } = useAuth();
   const router = useRouter();
   const [carregando, setCarregando] = useState(true);
-  const [mostrarLoginModal, setMostrarLoginModal] = useState(false); // ← controla o modal
+  const [mostrarLoginModal, setMostrarLoginModal] = useState(false);
 
   useEffect(() => {
     if (!usuario) {
-      setMostrarLoginModal(true); // ← abre o modal se não estiver logado
+      setMostrarLoginModal(true);
     } else {
-      setMostrarLoginModal(false); // ← fecha se estiver logado
+      setMostrarLoginModal(false);
     }
 
     if (carrinho) {
       setCarregando(false);
     }
   }, [usuario, carrinho]);
+
+  // Garantir que o contexto de frete foi carregado
+  if (!freteCtx) return null;
+
+  const { frete, nomeFrete } = freteCtx;
 
   const valorFrete = frete || 0;
   const totalFinal = totalCarrinho + valorFrete;
@@ -90,6 +95,13 @@ export default function Checkout() {
                 </span>
               </div>
 
+              {/* Aviso se o frete ainda não estiver selecionado */}
+              {valorFrete === 0 && (
+                <p className="text-sm text-yellow-400">
+                  O frete ainda não foi selecionado. Volte e selecione um método de envio.
+                </p>
+              )}
+
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-2 text-lg font-semibold">
                   <DollarSign className="w-5 h-5 text-green-400" />
@@ -105,7 +117,7 @@ export default function Checkout() {
               <button
                 onClick={() => router.push("/revisao")}
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition"
-                disabled={!usuario} // evita que o botão funcione sem login
+                disabled={!usuario}
               >
                 Prosseguir para Revisão
               </button>

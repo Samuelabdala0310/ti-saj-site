@@ -4,10 +4,11 @@ import { createContext, useContext, useState, useEffect } from "react";
 const FreteContext = createContext();
 
 export const FreteProvider = ({ children }) => {
-  const [frete, setFreteState] = useState(0);
+  const [frete, setFreteState] = useState(null);
   const [nomeFrete, setNomeFreteState] = useState("");
   const [cep, setCepState] = useState("");
   const [opcoesFrete, setOpcoesFrete] = useState([]);
+  const [carregado, setCarregado] = useState(false); // controle de carregamento
 
   // Carregar do localStorage no início
   useEffect(() => {
@@ -15,14 +16,16 @@ export const FreteProvider = ({ children }) => {
     const nomeFreteSalvo = localStorage.getItem("nomeFrete");
     const cepSalvo = localStorage.getItem("cep");
 
-    if (freteSalvo) setFreteState(Number(freteSalvo));
+    if (freteSalvo !== null) setFreteState(Number(freteSalvo));
     if (nomeFreteSalvo) setNomeFreteState(nomeFreteSalvo);
     if (cepSalvo) setCepState(cepSalvo);
+
+    setCarregado(true); // agora está pronto para uso
   }, []);
 
   // Salvar sempre que mudar
   useEffect(() => {
-    localStorage.setItem("frete", frete.toString());
+    if (frete !== null) localStorage.setItem("frete", frete.toString());
   }, [frete]);
 
   useEffect(() => {
@@ -33,11 +36,12 @@ export const FreteProvider = ({ children }) => {
     localStorage.setItem("cep", cep);
   }, [cep]);
 
-  // Encapsular os setters para manter o controle
+  // Encapsular os setters
   const setFrete = (valor) => setFreteState(valor);
   const setNomeFrete = (valor) => setNomeFreteState(valor);
   const setCep = (valor) => setCepState(valor);
 
+  // Cálculo de frete (usando sua API)
   const calcularFrete = async (cepDestino) => {
     try {
       const response = await fetch("/api/melhorenvio/cotar", {
@@ -59,6 +63,9 @@ export const FreteProvider = ({ children }) => {
       console.error("Erro ao calcular frete:", error);
     }
   };
+
+  // Evita expor o contexto antes do carregamento
+  if (!carregado) return null;
 
   return (
     <FreteContext.Provider

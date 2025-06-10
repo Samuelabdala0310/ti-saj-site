@@ -76,7 +76,7 @@ export default function RevisaoFinal() {
                                 Endereço de Entrega
                             </h2>
                             {endereco ? (
-                                <div className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 leading-relaxed">
+                                <div className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 leading-relaxed space-y-1">
                                     <p>
                                         {endereco.rua}, Nº {endereco.numero},{" "}
                                         {endereco.bairro}
@@ -100,17 +100,15 @@ export default function RevisaoFinal() {
                                 Resumo do Pedido
                             </h2>
 
-                            <div className="flex justify-between">
-                                <span className="text-gray-300">
-                                    Valor dos produtos:
-                                </span>
+                            <div className="flex justify-between text-gray-300">
+                                <span>Valor dos produtos:</span>
                                 <span className="text-white font-semibold">
                                     R$ {valorProdutos.toFixed(2)}
                                 </span>
                             </div>
 
-                            <div className="flex justify-between">
-                                <span className="text-gray-300 flex items-center gap-1">
+                            <div className="flex justify-between text-gray-300">
+                                <span className="flex items-center gap-1">
                                     <Truck className="w-4 h-4 text-blue-400" />
                                     {nomeFrete ? nomeFrete : "Frete"}:
                                 </span>
