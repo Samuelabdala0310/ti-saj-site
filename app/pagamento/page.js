@@ -15,14 +15,14 @@ export default function Pagamento() {
     const [metodoPagamento, setMetodoPagamento] = useState("");
     const [freteLocal, setFreteLocal] = useState(null);
     const [nomeFreteLocal, setNomeFreteLocal] = useState("");
+    const [freteCarregado, setFreteCarregado] = useState(false);
 
     const router = useRouter();
 
     useEffect(() => {
         const enderecoSalvo = localStorage.getItem("endereco");
         if (enderecoSalvo) {
-            const enderecoObj = JSON.parse(enderecoSalvo);
-            setEndereco(enderecoObj);
+            setEndereco(JSON.parse(enderecoSalvo));
         }
 
         const total = carrinho.reduce(
@@ -31,25 +31,37 @@ export default function Pagamento() {
         );
         setValorProdutos(total);
 
-        // Recupera frete do localStorage se não estiver no contexto
-        if (frete === null) {
-            const freteSalvo = localStorage.getItem("frete");
-            const nomeFreteSalvo = localStorage.getItem("nomeFrete");
+        const freteSalvo = localStorage.getItem("frete");
+        const nomeFreteSalvo = localStorage.getItem("nomeFrete");
 
-            if (freteSalvo) {
-                setFreteLocal(parseFloat(freteSalvo));
-                setNomeFreteLocal(nomeFreteSalvo || "");
-            }
+        if (frete === null && freteSalvo) {
+            setFreteLocal(parseFloat(freteSalvo));
+            setNomeFreteLocal(nomeFreteSalvo || "");
         }
+
+        setFreteCarregado(true);
     }, [carrinho, frete]);
 
-    const freteFinal = frete ?? freteLocal ?? 0;
-    const nomeFreteFinal = nomeFrete || nomeFreteLocal || "Frete";
-    const valorTotalGeral = valorProdutos + freteFinal;
+    useEffect(() => {
+        // Redireciona caso o frete esteja ausente depois do carregamento
+        if (freteCarregado && frete === null && !localStorage.getItem("frete")) {
+            alert("Frete não calculado. Você será redirecionado.");
+            router.push("/checkout");
+        }
+    }, [freteCarregado, frete, router]);
+
+    const freteFinal = frete ?? freteLocal;
+    const nomeFreteFinal = nomeFrete || nomeFreteLocal;
+    const valorTotalGeral = valorProdutos + (freteFinal ?? 0);
 
     const handlePagamento = async () => {
         if (!metodoPagamento) {
             alert("Selecione um método de pagamento.");
+            return;
+        }
+
+        if (freteFinal == null) {
+            alert("Frete não está calculado. Volte para calcular o frete.");
             return;
         }
 
@@ -78,6 +90,8 @@ export default function Pagamento() {
         }
     };
 
+    const freteIndefinido = freteFinal == null;
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white flex items-center justify-center px-4 py-10">
             <div className="backdrop-blur-lg bg-white/5 border border-zinc-700 p-10 rounded-3xl shadow-2xl w-full max-w-3xl">
@@ -85,9 +99,7 @@ export default function Pagamento() {
                     💳 Pagamento
                 </h1>
 
-                {/* Resumo do Pedido */}
                 <div className="space-y-6 mb-10">
-                    {/* Endereço */}
                     <div>
                         <h2 className="flex items-center gap-2 text-2xl font-semibold mb-3">
                             <MapPin className="text-blue-400" />
@@ -130,12 +142,16 @@ export default function Pagamento() {
                         <div className="flex justify-between">
                             <span className="text-gray-300 flex items-center gap-1">
                                 <Truck className="w-4 h-4 text-blue-400" />
-                                {nomeFreteFinal}:
+                                {nomeFreteFinal || "Frete"}:
                             </span>
                             <span className="text-white font-semibold">
-                                {freteFinal > 0
+                                {freteFinal != null
                                     ? `R$ ${freteFinal.toFixed(2)}`
-                                    : "Grátis"}
+                                    : (
+                                        <span className="text-red-400">
+                                            Não calculado
+                                        </span>
+                                    )}
                             </span>
                         </div>
 
@@ -198,9 +214,16 @@ export default function Pagamento() {
                 <div className="flex justify-end">
                     <button
                         onClick={handlePagamento}
-                        className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl"
+                        disabled={freteIndefinido}
+                        className={`px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl ${
+                            freteIndefinido
+                                ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+                                : "bg-green-500 hover:bg-green-600 text-white"
+                        }`}
                     >
-                        Finalizar Pedido
+                        {freteIndefinido
+                            ? "Calcule o Frete para Finalizar"
+                            : "Finalizar Pedido"}
                     </button>
                 </div>
             </div>

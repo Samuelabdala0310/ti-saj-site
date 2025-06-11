@@ -26,15 +26,29 @@ export default function Checkout() {
     if (carrinho) {
       setCarregando(false);
     }
+
+    // Verificação extra: se não tiver frete, exibe alerta (pode remover isso se achar invasivo)
+    const freteLocal = localStorage.getItem("frete");
+    if (!freteLocal || parseFloat(freteLocal) === 0) {
+      console.warn("Frete não encontrado no localStorage.");
+    }
   }, [usuario, carrinho]);
 
-  // Garantir que o contexto de frete foi carregado
   if (!freteCtx) return null;
 
   const { frete, nomeFrete } = freteCtx;
 
   const valorFrete = frete || 0;
   const totalFinal = totalCarrinho + valorFrete;
+
+  const handleAvancar = () => {
+    if (!frete || parseFloat(frete) === 0) {
+      alert("Por favor, calcule o frete antes de continuar.");
+      return;
+    }
+
+    router.push("/revisao");
+  };
 
   if (carregando) {
     return (
@@ -95,7 +109,6 @@ export default function Checkout() {
                 </span>
               </div>
 
-              {/* Aviso se o frete ainda não estiver selecionado */}
               {valorFrete === 0 && (
                 <p className="text-sm text-yellow-400">
                   O frete ainda não foi selecionado. Volte e selecione um método de envio.
@@ -115,8 +128,12 @@ export default function Checkout() {
 
             <div className="flex justify-end pt-2">
               <button
-                onClick={() => router.push("/revisao")}
-                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition"
+                onClick={handleAvancar}
+                className={`px-6 py-3 rounded-full font-semibold transition ${
+                  usuario
+                    ? "bg-green-500 hover:bg-green-600 text-white"
+                    : "bg-zinc-700 text-zinc-400 cursor-not-allowed"
+                }`}
                 disabled={!usuario}
               >
                 Prosseguir para Revisão
