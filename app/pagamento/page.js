@@ -43,16 +43,25 @@ export default function Pagamento() {
     }, [carrinho, frete]);
 
     useEffect(() => {
-        // Redireciona caso o frete esteja ausente depois do carregamento
         if (freteCarregado && frete === null && !localStorage.getItem("frete")) {
-            alert("Frete não calculado. Você será redirecionado.");
-            router.push("/checkout");
+            alert("Você será redirecionado para calcular o frete...");
+            setTimeout(() => {
+                router.push("/checkout");
+            }, 2000);
         }
     }, [freteCarregado, frete, router]);
 
     const freteFinal = frete ?? freteLocal;
     const nomeFreteFinal = nomeFrete || nomeFreteLocal;
     const valorTotalGeral = valorProdutos + (freteFinal ?? 0);
+
+    // ✅ Redireciona para /pix com valor na URL
+    useEffect(() => {
+        if (metodoPagamento === "pix") {
+            const total = valorProdutos + (frete ?? freteLocal ?? 0);
+            router.push(`/pix?valor=${total.toFixed(2)}`);
+        }
+    }, [metodoPagamento, router, valorProdutos, frete, freteLocal]);
 
     const handlePagamento = async () => {
         if (!metodoPagamento) {
@@ -100,6 +109,7 @@ export default function Pagamento() {
                 </h1>
 
                 <div className="space-y-6 mb-10">
+                    {/* Endereço */}
                     <div>
                         <h2 className="flex items-center gap-2 text-2xl font-semibold mb-3">
                             <MapPin className="text-blue-400" />
@@ -107,23 +117,16 @@ export default function Pagamento() {
                         </h2>
                         {endereco ? (
                             <div className="bg-zinc-700/50 p-4 rounded-xl border border-zinc-600 leading-relaxed">
-                                <p>
-                                    {endereco.rua}, Nº {endereco.numero},{" "}
-                                    {endereco.bairro}
-                                </p>
-                                <p>
-                                    {endereco.cidade} - {endereco.estado}
-                                </p>
+                                <p>{endereco.rua}, Nº {endereco.numero}, {endereco.bairro}</p>
+                                <p>{endereco.cidade} - {endereco.estado}</p>
                                 <p>CEP: {endereco.cep}</p>
                             </div>
                         ) : (
-                            <p className="text-red-400">
-                                Endereço não informado.
-                            </p>
+                            <p className="text-red-400">Endereço não informado.</p>
                         )}
                     </div>
 
-                    {/* Resumo dos Valores */}
+                    {/* Resumo do Pedido */}
                     <div className="bg-zinc-800 border border-zinc-700 rounded-2xl p-6 space-y-4">
                         <h2 className="flex items-center gap-2 text-2xl font-semibold mb-2">
                             <DollarSign className="text-yellow-400" />
@@ -131,9 +134,7 @@ export default function Pagamento() {
                         </h2>
 
                         <div className="flex justify-between">
-                            <span className="text-gray-300">
-                                Valor dos produtos:
-                            </span>
+                            <span className="text-gray-300">Valor dos produtos:</span>
                             <span className="text-white font-semibold">
                                 R$ {valorProdutos.toFixed(2)}
                             </span>
@@ -145,20 +146,14 @@ export default function Pagamento() {
                                 {nomeFreteFinal || "Frete"}:
                             </span>
                             <span className="text-white font-semibold">
-                                {freteFinal != null
-                                    ? `R$ ${freteFinal.toFixed(2)}`
-                                    : (
-                                        <span className="text-red-400">
-                                            Não calculado
-                                        </span>
-                                    )}
+                                {freteFinal != null ? `R$ ${freteFinal.toFixed(2)}` : (
+                                    <span className="text-red-400">Não calculado</span>
+                                )}
                             </span>
                         </div>
 
                         <div className="border-t border-zinc-600 pt-3 flex justify-between">
-                            <span className="text-lg font-semibold">
-                                Total Geral:
-                            </span>
+                            <span className="text-lg font-semibold">Total Geral:</span>
                             <span className="text-2xl text-green-500 font-bold">
                                 R$ {valorTotalGeral.toFixed(2)}
                             </span>
@@ -171,7 +166,7 @@ export default function Pagamento() {
                     <h2 className="text-2xl font-semibold mb-4">
                         Selecione o Método de Pagamento
                     </h2>
-                    <div className="flex gap-4 flex-wrap">
+                    <div className="flex gap-4 flex-wrap mb-4">
                         <button
                             onClick={() => setMetodoPagamento("pix")}
                             className={`flex items-center gap-2 px-6 py-3 rounded-xl border ${
@@ -210,22 +205,24 @@ export default function Pagamento() {
                     </div>
                 </div>
 
-                {/* Botão Finalizar */}
-                <div className="flex justify-end">
-                    <button
-                        onClick={handlePagamento}
-                        disabled={freteIndefinido}
-                        className={`px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl ${
-                            freteIndefinido
-                                ? "bg-gray-600 text-gray-300 cursor-not-allowed"
-                                : "bg-green-500 hover:bg-green-600 text-white"
-                        }`}
-                    >
-                        {freteIndefinido
-                            ? "Calcule o Frete para Finalizar"
-                            : "Finalizar Pedido"}
-                    </button>
-                </div>
+                {/* Botão Finalizar (usado para outros métodos que não sejam PIX) */}
+                {metodoPagamento !== "pix" && (
+                    <div className="flex justify-end">
+                        <button
+                            onClick={handlePagamento}
+                            disabled={freteIndefinido}
+                            className={`px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl ${
+                                freteIndefinido
+                                    ? "bg-gray-600 text-gray-300 cursor-not-allowed"
+                                    : "bg-green-500 hover:bg-green-600 text-white"
+                            }`}
+                        >
+                            {freteIndefinido
+                                ? "Calcule o Frete para Finalizar"
+                                : "Finalizar Pedido"}
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );
