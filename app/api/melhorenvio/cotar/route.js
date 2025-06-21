@@ -27,7 +27,7 @@ export async function POST(req) {
         quantity: 1
       }
     ],
-    services: [], // Vazio = retorna todas as transportadoras
+    services: "", // Vazio = retorna todas as transportadoras
     options: {
       own_hand: false,
       receipt: false,
