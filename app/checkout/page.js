@@ -9,7 +9,7 @@ import { ShoppingCart, DollarSign, Truck } from "lucide-react";
 import LoginModal from "@/components/LoginModal";
 
 export default function Checkout() {
-  const { carrinho, totalCarrinho } = useCarrinho();
+  const { carrinho = [], totalCarrinho } = useCarrinho(); // Garantir que carrinho é array
   const freteCtx = useFrete();
   const { usuario } = useAuth();
   const router = useRouter();
@@ -27,7 +27,6 @@ export default function Checkout() {
       setCarregando(false);
     }
 
-    // Verificação extra: se não tiver frete, exibe alerta (pode remover isso se achar invasivo)
     const freteLocal = localStorage.getItem("frete");
     if (!freteLocal || parseFloat(freteLocal) === 0) {
       console.warn("Frete não encontrado no localStorage.");
@@ -68,9 +67,7 @@ export default function Checkout() {
             <ShoppingCart className="w-6 h-6 text-purple-400" />
             Finalizar Pedido
           </h1>
-          <p className="text-gray-400 text-sm">
-            Revise seus produtos antes de prosseguir.
-          </p>
+          <p className="text-gray-400 text-sm">Revise seus produtos antes de prosseguir.</p>
         </div>
 
         {carrinho.length === 0 ? (
@@ -104,9 +101,7 @@ export default function Checkout() {
                   <Truck className="w-5 h-5 text-blue-400" />
                   Frete: {nomeFrete && <span className="text-sm text-gray-400">({nomeFrete})</span>}
                 </span>
-                <span className="text-lg font-medium text-blue-300">
-                  R$ {valorFrete.toFixed(2)}
-                </span>
+                <span className="text-lg font-medium text-blue-300">R$ {valorFrete.toFixed(2)}</span>
               </div>
 
               {valorFrete === 0 && (
@@ -120,9 +115,7 @@ export default function Checkout() {
                   <DollarSign className="w-5 h-5 text-green-400" />
                   Total com frete:
                 </span>
-                <span className="text-2xl font-bold text-green-500">
-                  R$ {totalFinal.toFixed(2)}
-                </span>
+                <span className="text-2xl font-bold text-green-500">R$ {totalFinal.toFixed(2)}</span>
               </div>
             </div>
 

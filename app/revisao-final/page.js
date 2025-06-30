@@ -3,14 +3,17 @@
 import { useEffect, useState } from "react";
 import { useCarrinho } from "@/context/CarrinhoContext";
 import { useFrete } from "@/context/FreteContext";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { MapPin, ShoppingBag, DollarSign, Truck } from "lucide-react";
 
 export default function RevisaoFinal() {
-    const { carrinho } = useCarrinho();
+    const { carrinho, limparCarrinho } = useCarrinho();
     const { frete, nomeFrete, calcularFrete, cep, setCep } = useFrete();
+    const { usuario } = useAuth();
     const [endereco, setEndereco] = useState(null);
     const [valorProdutos, setValorProdutos] = useState(0);
+    const [carregando, setCarregando] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -32,6 +35,65 @@ export default function RevisaoFinal() {
     }, [carrinho, calcularFrete, setCep]);
 
     const valorTotalGeral = valorProdutos + (frete || 0);
+    console.log("Usuário atual:", usuario);
+
+    const handleConfirmarPedido = async () => {
+        if (!usuario || !usuario._id) {
+            alert("Você precisa estar logado para finalizar o pedido.");
+            return;
+        }
+
+        if (!endereco) {
+            alert("Endereço não encontrado.");
+            return;
+        }
+
+        if (!frete || frete === 0) {
+            alert("O frete precisa ser calculado antes de confirmar o pedido.");
+            return;
+        }
+
+        setCarregando(true);
+
+        const pedido = {
+            usuarioId: usuario._id,
+            itens: carrinho.map((item) => ({
+                produtoId: item.id,
+                nome: item.nome,
+                tamanho: item.tamanho,
+                quantidade: item.quantidade,
+                preco: item.preco,
+            })),
+            valorTotal: valorTotalGeral,
+            endereco,
+            status: "aguardando_pagamento",
+            metodoPagamento: "pix", // ou "stripe"
+        };
+
+        try {
+            const res = await fetch("/api/pedido", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(pedido),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                limparCarrinho();
+                localStorage.removeItem("endereco");
+                router.push(`/pagamento?id=${data._id}`);
+            } else {
+                const erro = await res.json();
+                console.error("Erro no servidor:", erro);
+                alert("Erro ao criar o pedido. Tente novamente.");
+            }
+        } catch (error) {
+            console.error("Erro ao criar pedido:", error);
+            alert("Erro ao criar o pedido.");
+        } finally {
+            setCarregando(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white flex items-center justify-center px-4 py-10">
@@ -132,10 +194,17 @@ export default function RevisaoFinal() {
                         {/* Botão Confirmar */}
                         <div className="flex justify-end">
                             <button
-                                onClick={() => router.push("/pagamento")}
-                                className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl"
+                                onClick={handleConfirmarPedido}
+                                disabled={carregando}
+                                className={`${
+                                    carregando
+                                        ? "bg-gray-500 cursor-not-allowed"
+                                        : "bg-green-500 hover:bg-green-600"
+                                } text-white px-8 py-3 rounded-full text-lg font-semibold transition-all duration-300 shadow-md hover:shadow-xl`}
                             >
-                                Confirmar Pedido
+                                {carregando
+                                    ? "Processando..."
+                                    : "Confirmar Pedido"}
                             </button>
                         </div>
                     </>
