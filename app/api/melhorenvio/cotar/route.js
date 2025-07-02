@@ -7,11 +7,11 @@ export async function POST(req) {
     return NextResponse.json({ error: 'CEP não informado.' }, { status: 400 });
   }
 
-  const url = `https://sandbox.melhorenvio.com.br/api/v2/me/shipment/calculate`;
+  const url = `${process.env.MELHORENVIO_API}/api/v2/me/shipment/calculate`;
 
   const body = {
     from: {
-      postal_code: '89120000' // ✅ Substitua pelo seu CEP de origem
+      postal_code: '89120000' // ✅ Substitua por seu CEP de origem real
     },
     to: {
       postal_code: cep
@@ -27,7 +27,7 @@ export async function POST(req) {
         quantity: 1
       }
     ],
-    services: "", // Vazio = retorna todas as transportadoras
+    services: "", // Vazio = retorna todas as transportadoras disponíveis
     options: {
       own_hand: false,
       receipt: false,
@@ -40,7 +40,7 @@ export async function POST(req) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.SANDBOX_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${process.env.MELHOR_ENVIO_ACCESS_TOKEN}`,
         Accept: 'application/json'
       },
       body: JSON.stringify(body)
