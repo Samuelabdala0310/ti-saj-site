@@ -25,12 +25,13 @@ export const FreteProvider = ({ children }) => {
 
   // Salvar sempre que mudar
   useEffect(() => {
-    if (frete !== null) localStorage.setItem("frete", frete.toString());
-  }, [frete]);
-
-  useEffect(() => {
-    localStorage.setItem("nomeFrete", nomeFrete);
-  }, [nomeFrete]);
+    if (frete !== null && nomeFrete) {
+      localStorage.setItem(
+        "frete",
+        JSON.stringify({ valor: frete, nome: nomeFrete })
+      );
+    }
+  }, [frete, nomeFrete]);
 
   useEffect(() => {
     localStorage.setItem("cep", cep);

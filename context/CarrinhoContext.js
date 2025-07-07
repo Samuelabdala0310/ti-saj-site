@@ -86,8 +86,8 @@ export function CarrinhoProvider({ children }) {
         0
     );
 
-    const totalComFrete = freteSelecionado
-        ? totalCarrinho + Number(freteSelecionado.valor)
+    const totalComFrete = typeof freteSelecionado?.valor === "number"
+        ? totalCarrinho + freteSelecionado.valor
         : totalCarrinho;
 
     return (

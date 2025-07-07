@@ -49,9 +49,7 @@ export default function Produto() {
 
     setCarregandoFrete(true);
     setOpcoesFrete([]);
-    setFrete(0); // Limpa o frete anterior
-    setNomeFrete(''); // Limpa o nome do frete anterior
-    setFreteSelecionado(null); // Limpa a seleção de frete anterior
+    setCarregandoFrete(true);
 
     try {
       const response = await fetch("/api/melhorenvio/cotar", {
@@ -227,6 +225,7 @@ export default function Produto() {
                             : "border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-300" // Opção não selecionada mais escura
                         }`}
                         onClick={() => {
+                          console.log("Opção selecionada:", opcao);
                           setFrete(Number(opcao.valor));
                           setNomeFrete(opcao.nome);
                           setFreteSelecionado(opcao);

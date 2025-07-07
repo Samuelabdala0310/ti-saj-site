@@ -1,8 +1,9 @@
+// app/layout.js
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { CarrinhoProvider } from "@/context/CarrinhoContext";
 import { FreteProvider } from "@/context/FreteContext";
-import { AuthProvider } from "@/context/AuthContext"; // <-- IMPORTAR
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "TI-SAJ",
@@ -17,12 +18,12 @@ export default function RootLayout({ children }) {
     <html lang="pt-BR">
       <body>
         <AuthProvider>
-          <FreteProvider>
-            <CarrinhoProvider>
+          <CarrinhoProvider> {/* Carrinho precisa estar por fora do Frete */}
+            <FreteProvider>
               <Navbar />
               {children}
-            </CarrinhoProvider>
-          </FreteProvider>
+            </FreteProvider>
+          </CarrinhoProvider>
         </AuthProvider>
       </body>
     </html>

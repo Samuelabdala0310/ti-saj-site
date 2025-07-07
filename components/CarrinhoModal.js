@@ -7,9 +7,7 @@ export default function CarrinhoModal({ isOpen, onClose }) {
         carrinho, 
         removerDoCarrinho, 
         limparCarrinho, 
-        freteSelecionado, 
-        totalCarrinho, 
-        totalComFrete 
+        totalCarrinho
     } = useCarrinho();
 
     const [clientLoaded, setClientLoaded] = useState(false);
@@ -56,21 +54,9 @@ export default function CarrinhoModal({ isOpen, onClose }) {
                         </ul>
 
                         <div className="mt-4 space-y-1 text-sm text-black">
-                            <div className="flex justify-between">
+                            <div className="flex justify-between font-bold text-base">
                                 <span>Subtotal:</span>
                                 <span>R$ {totalCarrinho.toFixed(2).replace('.', ',')}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Frete:</span>
-                                <span>
-                                    {freteSelecionado 
-                                        ? `R$ ${Number(freteSelecionado.valor).toFixed(2).replace('.', ',')}` 
-                                        : 'Não selecionado'}
-                                </span>
-                            </div>
-                            <div className="flex justify-between font-bold text-base">
-                                <span>Total:</span>
-                                <span>R$ {totalComFrete.toFixed(2).replace('.', ',')}</span>
                             </div>
                         </div>
 

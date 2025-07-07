@@ -79,8 +79,6 @@ export default function RevisaoFinal() {
 
             if (res.ok) {
                 const data = await res.json();
-                limparCarrinho();
-                localStorage.removeItem("endereco");
                 router.push(`/pagamento?id=${data._id}`);
             } else {
                 const erro = await res.json();
