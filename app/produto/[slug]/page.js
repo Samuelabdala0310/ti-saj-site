@@ -242,6 +242,30 @@ export default function Produto() {
                         </div>
                       </li>
                     ))}
+                    {/* Opção de retirada pessoalmente */}
+                    <li
+                      className={`border rounded-xl p-4 flex justify-between items-center cursor-pointer transition-all duration-200 ${
+                        freteSelecionado?.nome === "Retirar pessoalmente"
+                          ? "border-blue-600 bg-blue-900 shadow-md text-white"
+                          : "border-gray-700 bg-gray-800 hover:bg-gray-700 text-gray-300"
+                      }`}
+                      onClick={() => {
+                        const opcaoRetirada = {
+                          nome: "Retirar pessoalmente",
+                          valor: 0,
+                          prazo: "a combinar",
+                        };
+                        setFrete(0);
+                        setNomeFrete("Retirar pessoalmente");
+                        setFreteSelecionado(opcaoRetirada);
+                      }}
+                    >
+                      <div>
+                        <p className="font-semibold text-gray-100">Retirar pessoalmente</p>
+                        <p className="text-sm text-gray-400 mt-0.5">Sem custo de frete</p>
+                      </div>
+                      <div className="font-bold text-lg text-green-500">R$ 0,00</div>
+                    </li>  
                   </ul>
                 </div>
               )}
