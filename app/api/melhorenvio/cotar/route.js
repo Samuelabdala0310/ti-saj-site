@@ -11,7 +11,7 @@ export async function POST(req) {
 
   const body = {
     from: {
-      postal_code: '89120000' // ✅ Substitua por seu CEP de origem real
+      postal_code: '89090042' // ✅ Use seu CEP de origem real aqui
     },
     to: {
       postal_code: cep
@@ -27,14 +27,14 @@ export async function POST(req) {
         quantity: 1
       }
     ],
-    services: "", // Vazio = retorna todas as transportadoras disponíveis
     options: {
       own_hand: false,
       receipt: false,
       insurance_value: 100
     }
+    // 🔥 Removido o campo `services` para evitar erro
   };
-
+   console.log('🔍 Corpo da requisição para Melhor Envio:', body);
   try {
     const response = await fetch(url, {
       method: 'POST',
